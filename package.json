@@ -1,0 +1,33 @@
+{
+  "name": "mentoring_NodeJS",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@babel/polyfill": "^7.7.0",
+    "csvtojson": "^2.0.10"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/plugin-transform-arrow-functions": "^7.2.0",
+    "@babel/preset-env": "^7.7.1",
+    "nodemon": "^2.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "task1": "nodemon task1.js",
+    "task2": "nodemon task2.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OlgaSenyushkina/Homework_NodeJS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OlgaSenyushkina/Homework_NodeJS/issues"
+  },
+  "homepage": "https://github.com/OlgaSenyushkina/Homework_NodeJS#readme"
+}
