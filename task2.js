@@ -1,14 +1,15 @@
-import { createReadStream, createWriteStream } from "fs";
-import { pipeline } from "stream";
-import csv from "csvtojson";
+const csv = require('csvtojson');
+const { pipeline } = require('stream');
+const { createReadStream, createWriteStream } = require('fs');
 
 const filePath = "./node_mentoring_t1_2_input_example.csv";
-
-const readStream = createReadStream(filePath);
-const writeStream = createWriteStream("homework.txt");
+const nameFile = "homework_task2.txt";
+const regExp = /book|author|price/i;
 
 pipeline(
-    readStream,
-    csv({ includeColumns: /book|author|price/i }),
-    writeStream
+    createReadStream(filePath),
+    csv({ 
+        includeColumns: regExp,
+    }),
+    createWriteStream(nameFile)
 )
