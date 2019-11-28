@@ -9,7 +9,14 @@ const regExp = /book|author|price/i;
 pipeline(
     createReadStream(filePath),
     csv({ 
-        includeColumns: regExp
+        includeColumns: regExp,
     }),
-    createWriteStream(nameFile)
+    createWriteStream(nameFile),
+    (err) => {
+        if (err) {
+          console.error('Pipeline failed.', err);
+        } else {
+          console.log('Pipeline succeeded.');
+        }
+    }
 )

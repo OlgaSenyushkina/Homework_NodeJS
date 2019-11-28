@@ -1,5 +1,5 @@
 {
-  "name": "mentoring_NodeJS",
+  "name": "homework",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -18,7 +18,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "task1": "nodemon task1.js",
-    "task2": "nodemon task2.js",
+    "task2": "nodemon --experimental-modules task2.js",
     "task3": "nodemon --exec babel-node task3.js"
   },
   "repository": {
