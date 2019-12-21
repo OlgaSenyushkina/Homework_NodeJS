@@ -1,37 +1,37 @@
 [
     {
       "id": "12345",
-      "login": "user_login454545",
+      "login": "user454545",
       "password": "user_password",
       "age": 44,
       "isDeleted": false
     },
     {
       "id": "12ffff45",
-      "login": "user_56456",
+      "login": "user456",
       "password": "usahword",
       "age": 44,
-      "isDeleted": true
+      "isDeleted": false
     },
     {
       "id": "12gggggggg5",
-      "login": "user_456456",
+      "login": "user451",
       "password": "us54645d",
       "age": 25,
       "isDeleted": false
     },
     {
       "id": "12jj45",
-      "login": "user6",
+      "login": "user2000000",
       "password": "use48686word",
       "age": 65,
       "isDeleted": false
-    }
-    ,{
+    },
+    {
       "id": "1234555",
       "login": "u6666",
       "password": "us684word",
       "age": 15,
-      "isDeleted": false
+      "isDeleted": true
     }
 ]
