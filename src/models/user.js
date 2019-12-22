@@ -5,9 +5,9 @@ import {
     MAX_PASSWORD,
     MAX_AGE,
     MIN_AGE,
- } from './const';
+ } from '../helpers/const';
 
-export const querySchema = Joi.object({
+export const userSchema = Joi.object({
     login: Joi
         .string()
         .required(),

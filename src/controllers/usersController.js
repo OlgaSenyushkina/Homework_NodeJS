@@ -1,7 +1,7 @@
-import users from '../helpers/users.json';
+import users from '../data/users.json';
 import uuid from 'uuid/v4';
 
-export const getUsersByLogin = (req, res) => {
+export const getUsers = (req, res) => {
     const { login, limit = 5 } = req.query;
     
     const prepareUsers = users.filter(user => !user.isDeleted);
@@ -32,22 +32,23 @@ export const getUserById = (req, res) => {
 }
 
 export const addNewUser = (req, res) => {
-    const { age, login, password } = req.query;
-    
-    users.push({
+    const { age, login, password } = req.body;
+    const user = {
         login,
         password,
-        age: Number(age),
+        age,
         isDeleted: false,
         id: uuid(),
-    });
+    };
 
-    res.send(users);
+    users.push(user);
+    res.send(user);
 }
 
 export const updateUserById = (req, res) => {
     const { id } = req.params;
-    const { login, password, age } = req.query;
+    const { login, password, age } = req.body;
+    
     const user = users.find(item => item.id === id);
 
     if (user) {
