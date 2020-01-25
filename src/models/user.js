@@ -1,6 +1,8 @@
 import * as Joi from '@hapi/joi';
 import uuid from 'uuid/v4';
 import users from '../data/users.json';
+import { sequelize } from "../services";
+import { Model, UUID, STRING, INTEGER, BOOLEAN, Op } from "sequelize";
 
 import { 
     REG_EXP_PASSWORD,
@@ -29,10 +31,40 @@ const userSchema = Joi.object({
         .required(),
 });
 
+class UserModelDB extends Model {}
+UserModelDB.init({
+    id: { type: UUID, primaryKey: true, allowNull: false, unique: true },
+    login: { type: STRING, allowNull: false, unique: true },
+    password: { type: STRING, allowNull: false },
+    age: { type: INTEGER, allowNull: false },
+    isDeleted: { type: BOOLEAN, allowNull: false },
+}, {
+    sequelize,
+    modelName: 'user'
+})
+
 class User {
     constructor(users, schema) {
         this.users = users;
         this.schema = schema;
+
+        this.initDB();
+    }
+
+    initDB() {
+        UserModelDB.sync();
+        
+        // use it only when debugging
+        users.forEach(user => {
+            UserModelDB.findOrCreate({
+                where: {
+                    id: user.id
+                },
+                defaults: {
+                    ...user
+                }
+            });
+        });
     }
 
     getSchema() {
@@ -40,71 +72,77 @@ class User {
     }
 
     getUserById(id) {
-        return this.users.find(user => user.id === id && !user.isDeleted);
+        return UserModelDB.findOne({ where: { id, isDeleted: false }});
     }
 
     getUserByLogin(login) {
-        return this.users.find(user => user.login === login && !user.isDeleted);
+        return UserModelDB.findOne({ where: { login, isDeleted: false }});
     }
 
     getUsers({ login, limit = LIMIT_USERS }) {
-        const users = this.users.filter(user => !user.isDeleted);
-    
         if (login) {
-            return users
-                .filter(user => user.login.includes(login))
-                .slice(0, limit)
-                .sort((a, b) => {
-                    const loginA = a.login.toLowerCase();
-                    const loginB = b.login.toLowerCase();
-            
-                    return (loginA < loginB) ? -1 : (loginA > loginB) ? 1 : 0;
-                });
+            return UserModelDB.findAll({ where: { login: {[Op.like]: `%${login}%`}, isDeleted: false }, limit, order: [['login', 'ASC']] });
         }
-            
-        return users;
+        
+        return UserModelDB.findAll({ where: { isDeleted: false }, limit });
     }
 
     addNewUser(data) {
-        const isUserExists = this.getUserByLogin(data.login);
-        
-        if (!isUserExists) {
-            const user = {
-                ...data,
-                isDeleted: false,
-                id: uuid(),
-            };
-        
-            this.users.push(user);
+        return this.getUserByLogin(data.login)
+            .then(foundedUser => {
+                if (foundedUser) return null;
+                
+                const user = {
+                    ...data,
+                    isDeleted: false,
+                    id: uuid(),
+                };
 
-            return user;
-        }
-
-        return null;
+                return UserModelDB.create({
+                    ...user
+                });
+            });
     }
 
     updateUserById(id, data) {
-        const user = this.getUserById(id);
-
-        if (user) {
-            const { login, password, age } = data;
-            user.login = login;
-            user.password = password;
-            user.age = Number(age);
-        }
-
-        return user || null;
+        return this.getUserById(id)
+            .then(user => {
+                if (!user) return null;
+                return UserModelDB.update(
+                    { ...data },
+                    { 
+                        where: { id },
+                        returning: true
+                    })
+                    .then(result => result[result.length - 1][0])
+            });
     }
 
     deleteUserById(id) {
-        const user = this.getUserById(id);
-        
-        if (user) {
-            user.isDeleted = true;
-        }
-
-        return !!user;
+        return this.getUserById(id)
+            .then(user => {
+                if (!user) return false;
+                return UserModelDB.update(
+                    { isDeleted: true },
+                    { 
+                        where: { id },
+                        returning: true
+                    })
+                    .then(() => true)
+            });
     }
 }
 
 export const userModel = new User(users, userSchema);
+
+
+
+/* 
+    
+    Создание таблицы:
+    CREATE TABLE IF NOT EXISTS "users" ("id" UUID NOT NULL , "login" VARCHAR(255) NOT NULL, "password" VARCHAR(255) NOT NULL, "age" NUMBER NOT NULL, "isDeleted" BOOLEAN NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL, "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL, PRIMARY KEY ("id"));
+    
+    Наполнение пользователями:
+    INSERT INTO "users" ("id","login","password","age","isDeleted","createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,$7)
+
+*/

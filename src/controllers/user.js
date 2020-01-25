@@ -2,52 +2,79 @@ import { userModel } from "../models/user";
 
 export const getUsers = (req, res) => {
     const { login, limit } = req.query;
-    const users = userModel.getUsers({ login, limit });
-
-    res.json(users);
+    userModel.getUsers({ login, limit })
+        .then(users => {
+            res.json(users)
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('Internal problem!');
+        });
 }
 
 export const getUser = (req, res) => {
     const { id } = req.params;
-    const user = userModel.getUserById(id);
-
-    if (user) {
-        res.send(user);
-    } else {
-        res.status(404).send('User was not found!');
-    }
+    userModel.getUserById(id)
+        .then(user => {
+            if (!user) {
+                res.status(404).send('User was not found!');
+            } else {
+                res.send(user);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('Internal problem!');
+        });
 }
 
 export const addUser = (req, res) => {
     const { age, login, password } = req.body;
-    const user = userModel.addNewUser({ age, login, password });
+    userModel.addNewUser({ age, login, password })
+        .then(user => {
+            if (user) {
+                res.send(user);
+            } else {
+                res.status(404).send('User with this login already exists!');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('Internal problem!');
+        });
 
-    if (user) {
-        res.send(user);
-    } else {
-        res.status(404).send('User with this login already exists!');
-    }
+    
 }
 
 export const updateUser = (req, res) => {
     const { id } = req.params;
     const { login, password, age } = req.body;
-    const result = userModel.updateUserById(id, { login, password, age });
-
-    if (result) {
-        res.send(result);
-    } else {
-        res.status(404).send(`User by id ${id} was not found!`);
-    }
+    userModel.updateUserById(id, { login, password, age })
+        .then(result => {
+            if (result) {
+                res.send(result);
+            } else {
+                res.status(404).send(`User by id ${id} was not found!`);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('Internal problem!');
+        });
 }
 
 export const deleteUser = (req, res) => {
     const { id } = req.params;
-    const result = userModel.deleteUserById(id);
-
-    if (result) {
-        res.send(`Deleted user by id ${id}!`);
-    } else {
-        res.status(404).send(`User by id ${id} was not found!`);
-    }
+    userModel.deleteUserById(id)
+        .then(result => {
+            if (result) {
+                res.send(`Deleted user by id ${id}!`);
+            } else {
+                res.status(404).send(`User by id ${id} was not found!`);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('Internal problem!');
+        });
 }
