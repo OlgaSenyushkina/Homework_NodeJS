@@ -1,4 +1,4 @@
-import { userModel } from "../models/user";
+import { userModel } from '../../services';
 
 export const getUsers = (req, res) => {
     const { login, limit } = req.query;
