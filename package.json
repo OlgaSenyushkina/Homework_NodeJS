@@ -1,5 +1,5 @@
 {
-  "name": "hw2",
+  "name": "hw3",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -30,7 +30,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --exec babel-node src/app.js"
+    "start": "nodemon --exec babel-node src/app.js",
+    "sql": "babel-node src/sql.js"
   },
   "repository": {
     "type": "git",

@@ -1,1 +1,0 @@
-export { UserModelDB } from './user';

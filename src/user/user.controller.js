@@ -1,4 +1,4 @@
-import { userModel } from '../../services';
+import { userModel } from './user.services';
 
 export const getUsers = (req, res) => {
     const { login, limit } = req.query;
@@ -42,8 +42,6 @@ export const addUser = (req, res) => {
             console.error(err);
             res.status(500).send('Internal problem!');
         });
-
-    
 }
 
 export const updateUser = (req, res) => {

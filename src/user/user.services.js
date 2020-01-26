@@ -1,8 +1,7 @@
 import * as Joi from '@hapi/joi';
 import uuid from 'uuid/v4';
-import users from '../../data/users.json';
-import { UserModelDB } from '../../models';
-import { Op } from "sequelize";
+import { UserModelDB } from './user.model';
+import { Op } from 'sequelize';
 import { 
     REG_EXP_PASSWORD,
     MIN_PASSWORD,
@@ -10,7 +9,7 @@ import {
     MAX_AGE,
     MIN_AGE,
     LIMIT_USERS,
- } from '../../helpers';
+ } from '../helpers';
 
 export const userSchema = Joi.object({
     login: Joi
@@ -31,31 +30,14 @@ export const userSchema = Joi.object({
 });
 
 class User {
-    constructor(users, schema) {
-        this.users = users;
+    constructor(schema) {
         this.schema = schema;
 
-        this.initDB();
+        // this.reinitDB(); // uncomment to clear table with data
     }
 
-    initDB() {
-        UserModelDB.sync();
-
-        /*
-            Наполнение пользователями:
-            INSERT INTO "users" ("id","login","password","age","isDeleted","createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,$7)
-        */
-        
-        users.forEach(user => {
-            UserModelDB.findOrCreate({
-                where: {
-                    id: user.id
-                },
-                defaults: {
-                    ...user
-                }
-            });
-        });
+    reinitDB() {
+        UserModelDB.sync({ force: true });
     }
 
     getSchema() {
@@ -129,5 +111,4 @@ class User {
     }
 }
 
-
-export const userModel = new User(users, userSchema);
+export const userModel = new User(userSchema);

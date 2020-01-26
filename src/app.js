@@ -1,6 +1,6 @@
 import { PORT } from './helpers/const';
 import { homeRouter, userRouter } from './routes';
-import { sequelize } from "./services";
+import { sequelize } from './user';
 import express from 'express';
 import bodyParser from 'body-parser';
 

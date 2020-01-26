@@ -1,1 +1,0 @@
-export { sequelize } from './db';
