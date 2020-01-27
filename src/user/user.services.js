@@ -1,33 +1,10 @@
-import * as Joi from '@hapi/joi';
 import uuid from 'uuid/v4';
 import { UserModelDB } from './user.model';
+import { userSchema } from './user.schema';
 import { Op } from 'sequelize';
-import { 
-    REG_EXP_PASSWORD,
-    MIN_PASSWORD,
-    MAX_PASSWORD,
-    MAX_AGE,
-    MIN_AGE,
-    LIMIT_USERS,
- } from '../helpers';
+import { LIMIT_USERS } from '../helpers';
+import { findUser, findUsers, createUser, initUsers } from './user.DAL';
 
-export const userSchema = Joi.object({
-    login: Joi
-        .string()
-        .required(),
-    password: Joi
-        .string()
-        .pattern(REG_EXP_PASSWORD)
-        .min(MIN_PASSWORD)
-        .max(MAX_PASSWORD)
-        .required(),
-    age: Joi
-        .number()
-        .integer()
-        .min(MIN_AGE)
-        .max(MAX_AGE)
-        .required(),
-});
 
 class User {
     constructor(schema) {
@@ -37,7 +14,7 @@ class User {
     }
 
     reinitDB() {
-        UserModelDB.sync({ force: true });
+        initUsers({ force: true });
     }
 
     getSchema() {
@@ -45,52 +22,41 @@ class User {
     }
 
     getUserById(id) {
-        return UserModelDB.findOne({ where: { id, isDeleted: false }});
+        return findUser({ where: { id, isDeleted: false } });
     }
 
     getUserByLogin(login) {
-        return UserModelDB.findOne({ where: { login, isDeleted: false }});
+        return findUser({ where: { login, isDeleted: false } });
     }
 
     getUsers({ login, limit = LIMIT_USERS }) {
-        if (login) {
-            return UserModelDB.findAll({ limit,
+        const data = login ? { 
+                limit, 
+                where: { isDeleted: false } 
+            } : {
+                limit, 
                 where: { 
+                    isDeleted: false,
                     login: { [Op.like]: `%${login}%` },
-                    isDeleted: false 
                 },
                 order: [['login', 'ASC']] 
-            });
-        }
-        
-        return UserModelDB.findAll({ limit, where: { isDeleted: false } });
+            };
+
+        return findUsers({ ...data });
     }
 
     async addNewUser(data) {
         const foundedUser = await this.getUserByLogin(data.login);
         
-        if (foundedUser) {
-            return null;
-        }
-        
-        return UserModelDB.create({
-            ...data,
-            isDeleted: false,
-            id: uuid(),
-        });
+        return foundedUser ? null : createUser({ ...data, isDeleted: false, id: uuid() });
     }
 
     async updateUserById(id, data) {
         const user = await this.getUserById(id);
 
-        if (!user) {
-            return null;
-        }
+        if (!user) return null;
             
-        const result = await UserModelDB.update({ ...data }, {
-            where: { id },
-            returning: true
-        });
+        const result = await updateUser({ ...data }, { where: { id }, returning: true });
         
         return result[result.length - 1][0];
     }
@@ -98,14 +64,9 @@ class User {
     async deleteUserById(id) {
         const user = await this.getUserById(id);
         
-        if (!user) {
-            return false;
-        }
+        if (!user) return false;
             
-        await UserModelDB.update({ isDeleted: true }, {
-            where: { id },
-            returning: true
-        });
+        await updateUser({ isDeleted: true }, { where: { id }, returning: true });
 
         return true;
     }

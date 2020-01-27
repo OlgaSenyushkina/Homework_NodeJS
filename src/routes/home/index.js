@@ -1,1 +1,0 @@
-export { homeRouter } from './home';
