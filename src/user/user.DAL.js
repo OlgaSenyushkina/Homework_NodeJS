@@ -1,12 +1,43 @@
 import { UserModelDB } from './user.model';
+import { Op } from 'sequelize';
 
+class DataAccessLayer {
+    constructor() {
+    }
 
-export const initUsers = (payload) => UserModelDB.sync(payload);
+    reinitUsers() {
+        return UserModelDB.sync({ force: true });
+    }
 
-export const findUser = (payload) => UserModelDB.findOne(payload);
+    getUserByParams(where) {
+        return UserModelDB.findOne({ where });
+    }
 
-export const findUsers = (payload) => UserModelDB.findAll(payload);
+    getUsers({ limit, isDeleted }) {
+        const order = [['login', 'ASC']];
+        const where = { isDeleted };
 
-export const createUser = (payload) => UserModelDB.create(payload);
+        return UserModelDB.findAll({ limit, where, order });
+    }
 
-export const updateUser = (payload) => UserModelDB.update(payload);
+    getUsersByLogin({ login, isDeleted, limit }) {
+        const order = [['login', 'ASC']];
+        const where = {
+            isDeleted,
+            login: { [Op.like]: `%${login}%` }
+        };
+
+        return UserModelDB.findAll({ limit, where, order });
+    }
+
+    createUser(data) {
+        return UserModelDB.create(data);
+    }
+
+    updateUser({ id, data }) {
+        const where = { id };
+        return UserModelDB.update({ ...data }, { where, returning: true });
+    }
+}
+
+export const DAL = new DataAccessLayer();

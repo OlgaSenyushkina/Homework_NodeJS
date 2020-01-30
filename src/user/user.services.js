@@ -1,9 +1,7 @@
 import uuid from 'uuid/v4';
-import { UserModelDB } from './user.model';
 import { userSchema } from './user.schema';
-import { Op } from 'sequelize';
 import { LIMIT_USERS } from '../helpers';
-import { findUser, findUsers, createUser, initUsers } from './user.DAL';
+import { DAL } from './user.DAL';
 
 
 class User {
@@ -14,7 +12,7 @@ class User {
     }
 
     reinitDB() {
-        initUsers({ force: true });
+        return DAL.reinitUsers();
     }
 
     getSchema() {
@@ -22,33 +20,25 @@ class User {
     }
 
     getUserById(id) {
-        return findUser({ where: { id, isDeleted: false } });
+        return DAL.getUserByParams({ id, isDeleted: false });
     }
 
     getUserByLogin(login) {
-        return findUser({ where: { login, isDeleted: false } });
+        return DAL.getUserByParams({ login, isDeleted: false });
     }
 
     getUsers({ login, limit = LIMIT_USERS }) {
-        const data = login ? { 
-                limit, 
-                where: { isDeleted: false } 
-            } : {
-                limit, 
-                where: { 
-                    isDeleted: false,
-                    login: { [Op.like]: `%${login}%` },
-                },
-                order: [['login', 'ASC']] 
-            };
-
-        return findUsers({ ...data });
+        return login ? 
+            DAL.getUsersByLogin({ login, limit, isDeleted: false })
+            : DAL.getUsers({ limit, isDeleted: false });
     }
 
     async addNewUser(data) {
         const foundedUser = await this.getUserByLogin(data.login);
-        
-        return foundedUser ? null : createUser({ ...data, isDeleted: false, id: uuid() });
+
+        if (!foundedUser) return null;
+
+        return DAL.createUser({ ...data, isDeleted: false, id: uuid() });
     }
 
     async updateUserById(id, data) {
@@ -56,8 +46,8 @@ class User {
 
         if (!user) return null;
             
-        const result = await updateUser({ ...data }, { where: { id }, returning: true });
-        
+        const result = DAL.updateUser({ id, data });
+
         return result[result.length - 1][0];
     }
 
@@ -65,10 +55,12 @@ class User {
         const user = await this.getUserById(id);
         
         if (!user) return false;
-            
-        await updateUser({ isDeleted: true }, { where: { id }, returning: true });
 
-        return true;
+        const data = { isDeleted: true };
+            
+        const result = DAL.updateUser( { id, data });
+
+        return !!result;
     }
 }
 
