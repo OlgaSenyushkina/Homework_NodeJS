@@ -29,3 +29,6 @@ export const INIT_GROUPS_DATA = `INSERT INTO "groups" ("id","name","permissions"
     ('39b3f092-d285-4715-bd6e-4c16dcf2caa3', 'readGroup', 'READ'),
     ('39b3f092-d285-4715-bd6e-4c16dcf2caa9', 'writeGroup', 'WRITE')
 ;`;
+
+export const DROP_USER_GROUPS_TABLE = 'DROP TABLE IF EXISTS "UserGroups" CASCADE';
+export const CREATE_USER_GROUPS_TABLE = `CREATE TABLE IF NOT EXISTS "UserGroups" ("id" INTEGER UNIQUE, "groupId" UUID NOT NULL REFERENCES "groups" ("id") ON DELETE CASCADE ON UPDATE CASCADE, "userId" UUID NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE, UNIQUE ("groupId", "userId"), PRIMARY KEY ("id"));`;
