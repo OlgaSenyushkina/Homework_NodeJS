@@ -1,13 +1,13 @@
 import * as express from 'express';
-import { validator } from '../helpers/const';
-import { userModel } from '../models/user';
+import { validator } from '../helpers';
+import { userModel } from './user.services';
 import { 
     getUsers,
     getUser,
     addUser,
     updateUser,
     deleteUser,
-} from '../controllers/user';
+} from './user.controller';
 
 export const userRouter = express.Router();
 
