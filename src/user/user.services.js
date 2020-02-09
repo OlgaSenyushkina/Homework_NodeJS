@@ -36,7 +36,7 @@ class User {
     async addNewUser(data) {
         const foundedUser = await this.getUserByLogin(data.login);
 
-        if (!foundedUser) return null;
+        if (foundedUser) return null;
 
         return DAL.createUser({ ...data, isDeleted: false, id: uuid() });
     }
@@ -46,7 +46,7 @@ class User {
 
         if (!user) return null;
             
-        const result = DAL.updateUser({ id, data });
+        const result = await DAL.updateUser({ id, data });
 
         return result[result.length - 1][0];
     }

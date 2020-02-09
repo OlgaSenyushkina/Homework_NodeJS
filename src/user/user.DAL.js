@@ -1,7 +1,7 @@
 import { UserModelDB } from './user.model';
 import { Op } from 'sequelize';
 
-class DataAccessLayer {
+class UserDataAccessLayer {
     constructor() {
     }
 
@@ -40,4 +40,4 @@ class DataAccessLayer {
     }
 }
 
-export const DAL = new DataAccessLayer();
+export const DAL = new UserDataAccessLayer();
