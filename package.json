@@ -31,7 +31,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --exec babel-node src/app.js",
-    "sql": "babel-node src/sql.js"
+    "init-db": "babel-node src/init-sequelize.js"
   },
   "repository": {
     "type": "git",

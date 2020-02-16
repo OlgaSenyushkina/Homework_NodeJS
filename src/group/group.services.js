@@ -1,4 +1,6 @@
 import uuid from 'uuid/v4';
+import { userModel } from '../user';
+import { userGroupModel } from '../userGroup';
 import { groupSchema } from './group.schema';
 import { DAL } from './group.DAL';
 
