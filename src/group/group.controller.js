@@ -1,77 +1,127 @@
 import { groupModel } from './group.services';
 
-export const addGroup = (req, res) => {
+export const addGroup = async (req, res) => {
     const { name, permissions } = req.body;
-    groupModel.createGroup({ name, permissions })
-        .then(group => {
-            if (group) {
-                res.send(group);
-            } else {
-                res.status(404).send('Group with this name already exists!');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+    
+    try {
+        const group = await groupModel.createGroup({ name, permissions })
+
+        if (group) {
+            res.send(group);
+        } else {
+            throw new CustomError({ 
+                code: 404,
+                message: 'Group with this name already exists!',
+                service: 'groups',
+                method: 'addGroup',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'groups',
+            method: 'addGroup',
         });
+    }
 }
 
-export const getAllGroups = (req, res) => {
-    groupModel.getAllGroups()
-        .then(groups => {
-            res.json(groups)
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+export const getAllGroups = async (req, res) => {
+    try {
+        const groups = groupModel.getAllGroups()
+        res.json(groups)
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'groups',
+            method: 'getAllGroups',
         });
+    }
 }
 
-export const getGroup = (req, res) => {
+export const getGroup = async (req, res) => {
     const { id } = req.params;
-    groupModel.getGroupById(id)
-        .then(group => {
-            if (!group) {
-                res.status(404).send('Group was not found!');
-            } else {
-                res.send(group);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+    try {
+        const group = await groupModel.getGroupById(id)
+        
+        if (group) {
+            res.send(group);
+        } else {
+            throw new CustomError({ 
+                code: 404,
+                message: 'Group was not found!',
+                service: 'groups',
+                method: 'getGroup',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'groups',
+            method: 'getGroup',
         });
+    }
 }
 
-export const updateGroup = (req, res) => {
+export const updateGroup = async (req, res) => {
     const { id } = req.params;
     const { name, permissions } = req.body;
-    groupModel.updateGroupById(id, { name, permissions })
-        .then(result => {
-            if (result) {
-                res.send(result);
-            } else {
-                res.status(404).send(`Group by id ${id} was not found!`);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+    try {
+        const result = await groupModel.updateGroupById(id, { name, permissions })
+        
+        if (result) {
+            res.send(result);
+        } else {
+            throw new CustomError({ 
+                code: 404,
+                message: `Group by id ${id} was not found!`,
+                service: 'groups',
+                method: 'updateGroup',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'groups',
+            method: 'updateGroup',
         });
+    }
 }
 
-export const deleteGroup = (req, res) => {
+export const deleteGroup = async (req, res) => {
     const { id } = req.params;
-    groupModel.removeGroupById(id)
-        .then(result => {
-            if (result) {
-                res.send(`Deleted group by id ${id}!`);
-            } else {
-                res.status(404).send(`Group by id ${id} was not found!`);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+    try {
+        const result = groupModel.removeGroupById(id)
+        
+        if (result) {
+            res.send(`Deleted group by id ${id}!`);
+        } else {
+            throw new CustomError({ 
+                code: 404,
+                message: `Group by id ${id} was not found!`,
+                service: 'groups',
+                method: 'deleteGroup',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'groups',
+            method: 'deleteGroup',
         });
+    }
 }

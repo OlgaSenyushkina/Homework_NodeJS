@@ -20,6 +20,7 @@ UserGroupModelDB.init({
     },
 }, {
     sequelize,
+    paranoid: true,
     timestamps: false,
     modelName: 'userGroup'
 });

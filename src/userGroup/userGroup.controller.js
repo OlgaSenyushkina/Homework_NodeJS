@@ -1,44 +1,70 @@
 import { userGroupModel } from './userGroup.services';
+import { CustomError } from '../helpers/errorsHandler';
 
-export const getAll = (req, res) => {
-    userGroupModel.getAll()
-        .then(userGroups => {
-            res.json(userGroups)
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+export const getAll = async (req, res) => {
+    try {
+        const result = userGroupModel.getAll()
+        res.json(result);
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'userGroups',
+            method: 'getAll',
         });
+    }
 }
 
-export const getUserGroup = (req, res) => {
+export const getUserGroup = async (req, res) => {
     const { id } = req.params;
-    userGroupModel.getUserGroup(id)
-        .then(user => {
-            if (!user) {
-                res.status(404).send('Users group was not found!');
-            } else {
-                res.send(user);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+    try {
+        const result = userGroupModel.getUserGroup(id)
+        if (result) {
+            res.send(result);
+        } else {
+            throw new CustomError({
+                code: 404,
+                message: 'Users group was not found!',
+                service: 'userGroups',
+                method: 'getUserGroup',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'userGroups',
+            method: 'getUserGroup',
         });
+    }
 }
 
-export const addUsersToGroup = (req, res) => {
+export const addUsersToGroup = async (req, res) => {
     const { groupId, users } = req.body;
-    userGroupModel.addUsersToGroup({ groupId, users })
-        .then(result => {
-            if (result) {
-                res.send(result);
-            } else {
-                res.status(404).send(`Users group by id ${groupId} was not found!`);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+    try {
+        const result = userGroupModel.addUsersToGroup({ groupId, users })
+        if (result) {
+            res.send(result);
+        } else {
+            throw new CustomError({ 
+                code: 404,
+                message: `Users group by id ${groupId} was not found!`,
+                service: 'userGroups',
+                method: 'addUsersToGroup',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'userGroups',
+            method: 'addUsersToGroup',
         });
+    }
 }

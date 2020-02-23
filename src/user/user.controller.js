@@ -1,78 +1,112 @@
 import { userModel } from './user.services';
 
-export const getUsers = (req, res) => {
+export const getUsers = async (req, res) => {
     const { login, limit } = req.query;
-    userModel.getUsers({ login, limit })
-        .then(users => {
-            res.json(users)
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
-        });
+    try {
+        const result = userModel.getUsers({ login, limit })
+        res.json(result)
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({ message: error.message, service: 'users', method: 'getUsers' });
+    }
 }
 
-export const getUser = (req, res) => {
+export const getUser = async (req, res) => {
     const { id } = req.params;
-    userModel.getUserById(id)
-        .then(user => {
-            if (!user) {
-                res.status(404).send('User was not found!');
-            } else {
-                res.send(user);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
-        });
+    try {
+        const result = await userModel.getUserById(id)
+        if (result) {
+            res.send(result);
+        } else {
+            throw new CustomError({ 
+                code: 404,
+                message: 'User was not found!',
+                service: 'users',
+                method: 'getUser',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({ message: error.message, service: 'users', method: 'getUser' });
+    }
 }
+    
 
-export const addUser = (req, res) => {
+export const addUser = async (req, res) => {
     const { age, login, password } = req.body;
-    userModel.addNewUser({ age, login, password })
-        .then(user => {
-            if (user) {
-                res.send(user);
-            } else {
-                res.status(404).send('User with this login already exists!');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
-        });
+    try {
+        const result = await userModel.addNewUser({ age, login, password })
+        if (result) {
+            res.send(result);
+        } else {
+            throw new CustomError({ 
+                code: 404,
+                message: 'User with this login already exists!',
+                service: 'users',
+                method: 'addUser',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({ message: error.message, service: 'users', method: 'addUser' });
+    }
 }
 
-export const updateUser = (req, res) => {
+export const updateUser = async (req, res) => {
     const { id } = req.params;
     const { login, password, age } = req.body;
-    userModel.updateUserById(id, { login, password, age })
-        .then(result => {
-            if (result) {
-                res.send(result);
-            } else {
-                res.status(404).send(`User by id ${id} was not found!`);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+    try {
+        const result = await userModel.updateUserById(id, { login, password, age })
+        if (result) {
+            res.send(result);
+        } else {
+            throw new CustomError({ 
+                code: 404,
+                message: `User by id ${id} was not found!`,
+                service: 'users',
+                method: 'updateUser',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'users',
+            method: 'updateUser',
         });
+    }
 }
 
-export const deleteUser = (req, res) => {
+export const deleteUser = async(req, res) => {
     const { id } = req.params;
-    userModel.deleteUserById(id)
-        .then(result => {
-            if (result) {
-                res.send(`Deleted user by id ${id}!`);
-            } else {
-                res.status(404).send(`User by id ${id} was not found!`);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
+    try {
+        const result = await userModel.deleteUserById(id)
+        if (result) {
+            res.send(`Deleted user by id ${id}!`);
+        } else {
+            throw new CustomError({ 
+                code: 404,
+                message: `User by id ${id} was not found!`,
+                service: 'users',
+                method: 'deleteUser',
+            });
+        }
+    } catch (error) {
+        if (error.code) {
+            throw error;
+        }
+        throw new CustomError({
+            message: error.message,
+            service: 'users',
+            method: 'deleteUser',
         });
+    }
 }

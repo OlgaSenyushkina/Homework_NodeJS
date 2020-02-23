@@ -29,6 +29,7 @@ UserModelDB.init({
     },
 }, {
     sequelize,
+    paranoid: true,
     modelName: 'user',
     timestamps: false
 })
