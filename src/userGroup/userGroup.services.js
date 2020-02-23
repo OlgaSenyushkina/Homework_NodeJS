@@ -1,6 +1,7 @@
 import { userGroupSchema } from './userGroup.schema';
 import { DAL } from './userGroup.DAL';
 import { sequelize } from '../db';
+import { statusCodes } from '../helpers/const';
 
 class UserGroup {
     constructor(schema) {
@@ -25,13 +26,28 @@ class UserGroup {
         return DAL.getUserGroup(params);
     }
 
-    async addUsersToGroup({ groupId, users }) {
-        if (!users) return 'users value error!';
-        if (!groupId) return 'groupId value error!';
-        let transaction = await sequelize.transaction();
+    async addUsersToGroup({ groupId, users }) { 
+        if (!users) {
+            throw new CustomError({
+                code: statusCodes[CODES.BAD_DATA],
+                message: 'users value error!',
+                service: 'userGroup',
+                method: 'addUsersToGroup',
+            });
+        }
+        
+        if (!groupId) {
+            throw new CustomError({
+                code: statusCodes[CODES.BAD_DATA],
+                message: 'groupId value error!',
+                service: 'userGroup',
+                method: 'addUsersToGroup',
+            });
+        }
 
-        let result = 'All users add to group';
         try {
+            const transaction = await sequelize.transaction();
+
             for (let i = 0; i < users.length; i++) {
                 const user = users[i];
                 const params = {
@@ -41,8 +57,12 @@ class UserGroup {
                 const foundUserInGroup = await this.getUserGroup({ params });
                 
                 if (foundUserInGroup) {
-                    result = `Users didn't add to group. This group has user ID ${params.userId}`;
-                    throw Error(result);
+                    throw new CustomError({
+                        code: statusCodes[CODES.BAD_DATA],
+                        message: `Users didn't add to group. This group has user ID ${params.userId}`,
+                        service: 'userGroup',
+                        method: 'addUsersToGroup',
+                    });
                 };
                 
     
@@ -50,8 +70,18 @@ class UserGroup {
             }
 
             await transaction.commit();
-        } catch(e) {
+        } catch (error) {
             await transaction.rollback();
+
+            if (error.code) {
+                throw error;
+            }
+
+            throw new CustomError({
+                message: error.message,
+                service: 'userGroup',
+                method: 'addUsersToGroup',
+            }); 
         }
         
 

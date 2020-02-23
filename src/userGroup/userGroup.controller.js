@@ -1,5 +1,6 @@
 import { userGroupModel } from './userGroup.services';
 import { CustomError } from '../helpers/errorsHandler';
+import { statusCodes } from '../helpers/const';
 
 export const getAll = async (req, res) => {
     try {
@@ -25,7 +26,7 @@ export const getUserGroup = async (req, res) => {
             res.send(result);
         } else {
             throw new CustomError({
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: 'Users group was not found!',
                 service: 'userGroups',
                 method: 'getUserGroup',
@@ -51,7 +52,7 @@ export const addUsersToGroup = async (req, res) => {
             res.send(result);
         } else {
             throw new CustomError({ 
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: `Users group by id ${groupId} was not found!`,
                 service: 'userGroups',
                 method: 'addUsersToGroup',

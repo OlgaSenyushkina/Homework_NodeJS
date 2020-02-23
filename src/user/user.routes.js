@@ -1,18 +1,21 @@
 import * as express from 'express';
 import { validator } from '../helpers';
 import { userModel } from './user.services';
-import { userController } from './user.controller';
-import { errorsHandler } from '../helpers/errorsHandler';
+import { 
+    getUsers,
+    getUser,
+    addUser,
+    updateUser,
+    deleteUser,
+ } from './user.controller';
 
 export const userRouter = express.Router();
 
 userRouter.route('/')
-    .get(userController.getUsers)
-    .post(validator.body(userModel.getSchema()), userController.addUser)
-    .use(errorsHandler);
+    .get(getUsers)
+    .post(validator.body(userModel.getSchema()), addUser)
 
 userRouter.route('/:id')
-    .get(userController.getUser)
-    .put(validator.body(userModel.getSchema()), userController.updateUser)
-    .delete(userController.deleteUser)
-    .use(errorsHandler);
+    .get(getUser)
+    .put(validator.body(userModel.getSchema()), updateUser)
+    .delete(deleteUser)

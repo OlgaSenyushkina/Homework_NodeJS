@@ -1,4 +1,5 @@
 import { groupModel } from './group.services';
+import { statusCodes } from '../helpers/const';
 
 export const addGroup = async (req, res) => {
     const { name, permissions } = req.body;
@@ -10,7 +11,7 @@ export const addGroup = async (req, res) => {
             res.send(group);
         } else {
             throw new CustomError({ 
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: 'Group with this name already exists!',
                 service: 'groups',
                 method: 'addGroup',
@@ -53,7 +54,7 @@ export const getGroup = async (req, res) => {
             res.send(group);
         } else {
             throw new CustomError({ 
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: 'Group was not found!',
                 service: 'groups',
                 method: 'getGroup',
@@ -81,7 +82,7 @@ export const updateGroup = async (req, res) => {
             res.send(result);
         } else {
             throw new CustomError({ 
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: `Group by id ${id} was not found!`,
                 service: 'groups',
                 method: 'updateGroup',
@@ -108,7 +109,7 @@ export const deleteGroup = async (req, res) => {
             res.send(`Deleted group by id ${id}!`);
         } else {
             throw new CustomError({ 
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: `Group by id ${id} was not found!`,
                 service: 'groups',
                 method: 'deleteGroup',

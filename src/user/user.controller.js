@@ -1,4 +1,5 @@
 import { userModel } from './user.services';
+import { statusCodes } from '../helpers/const';
 
 export const getUsers = async (req, res) => {
     const { login, limit } = req.query;
@@ -21,7 +22,7 @@ export const getUser = async (req, res) => {
             res.send(result);
         } else {
             throw new CustomError({ 
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: 'User was not found!',
                 service: 'users',
                 method: 'getUser',
@@ -44,7 +45,7 @@ export const addUser = async (req, res) => {
             res.send(result);
         } else {
             throw new CustomError({ 
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: 'User with this login already exists!',
                 service: 'users',
                 method: 'addUser',
@@ -54,7 +55,11 @@ export const addUser = async (req, res) => {
         if (error.code) {
             throw error;
         }
-        throw new CustomError({ message: error.message, service: 'users', method: 'addUser' });
+        throw new CustomError({
+            message: error.message,
+            service: 'users',
+            method: 'addUser',
+        });
     }
 }
 
@@ -67,7 +72,7 @@ export const updateUser = async (req, res) => {
             res.send(result);
         } else {
             throw new CustomError({ 
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: `User by id ${id} was not found!`,
                 service: 'users',
                 method: 'updateUser',
@@ -93,7 +98,7 @@ export const deleteUser = async(req, res) => {
             res.send(`Deleted user by id ${id}!`);
         } else {
             throw new CustomError({ 
-                code: 404,
+                code: statusCodes[CODES.NOT_FOUND],
                 message: `User by id ${id} was not found!`,
                 service: 'users',
                 method: 'deleteUser',

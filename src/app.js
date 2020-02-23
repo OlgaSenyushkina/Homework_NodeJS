@@ -4,6 +4,7 @@ import { sequelize } from './db';
 import { userRouter } from './user';
 import { groupRouter } from './group';
 import { userGroupRouter } from './userGroup';
+import { errorsHandler } from './helpers/errorsHandler';
 import express from 'express';
 import bodyParser from 'body-parser';
 
@@ -15,9 +16,7 @@ app
     .use('/groups', groupRouter)
     .use('/users', userRouter)
     .use('/', homeRouter)
-    .use((req, res) => {
-        res.status(404).send('404 Not Found');
-    })
+    .use(errorsHandler)
     .listen(PORT, () => {
         console.log(`Example app listening on port ${PORT}!`);
         sequelize

@@ -18,7 +18,7 @@ const errorLogger = (filename) => createLogger({
 export const log = (error) => {
     const { message, code, stack, method, service } = error;
     const logData = code ? { message, method, service } : { message, stack };
-    const isBusinessExceptionCodes = code && BUSINESS_EXCEPTION_CODES[code];
+    const isBusinessExceptionCodes = BUSINESS_EXCEPTION_CODES[code];
     const filename = isBusinessExceptionCodes ? './logs/businessExceptions.log' : './logs/systemErrors.log';
     const logger = errorLogger(filename);
     
