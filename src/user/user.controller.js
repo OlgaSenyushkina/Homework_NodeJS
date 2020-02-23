@@ -10,7 +10,11 @@ export const getUsers = async (req, res) => {
         if (error.code) {
             throw error;
         }
-        throw new CustomError({ message: error.message, service: 'users', method: 'getUsers' });
+        throw new CustomError({
+            message: error.message,
+            service: 'users',
+            method: 'getUsers',
+        });
     }
 }
 
@@ -32,7 +36,11 @@ export const getUser = async (req, res) => {
         if (error.code) {
             throw error;
         }
-        throw new CustomError({ message: error.message, service: 'users', method: 'getUser' });
+        throw new CustomError({
+            message: error.message,
+            service: 'users',
+            method: 'getUser',
+        });
     }
 }
     

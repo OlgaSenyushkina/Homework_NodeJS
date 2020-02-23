@@ -21,6 +21,7 @@ export class CustomError {
     if (method) {
       this.method = method;
     }
+    
     if (service) {
       this.service = service;
     }

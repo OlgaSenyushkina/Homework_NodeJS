@@ -17,14 +17,13 @@ app
     .use('/users', userRouter)
     .use('/', homeRouter)
     .use(errorsHandler)
-    .listen(PORT, () => {
+    .listen(PORT, async () => {
         console.log(`Example app listening on port ${PORT}!`);
-        sequelize
-            .authenticate()
-            .then(() => {
-                console.log('[sequelize] Our database is working correctly!');
-            })
-            .catch(err => {
-                console.error('[sequelize] Unable to connect to the database:', err);
-            });
+        try {
+            await sequelize.authenticate();
+
+            console.log('[sequelize] Our database is working correctly!');
+        } catch(error) {
+                console.error('[sequelize] Unable to connect to the database:', error);
+        };
     });
