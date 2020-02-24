@@ -27,19 +27,10 @@ class UserGroup {
     }
 
     async addUsersToGroup({ groupId, users }) { 
-        if (!users) {
+        if (!users || !groupId) {
             throw new CustomError({
                 code: statusCodes[CODES.BAD_DATA],
-                message: 'users value error!',
-                service: 'userGroup',
-                method: 'addUsersToGroup',
-            });
-        }
-        
-        if (!groupId) {
-            throw new CustomError({
-                code: statusCodes[CODES.BAD_DATA],
-                message: 'groupId value error!',
+                message: `${!users ? 'users' : 'groupId'} value error!`,
                 service: 'userGroup',
                 method: 'addUsersToGroup',
             });
@@ -49,22 +40,18 @@ class UserGroup {
             const transaction = await sequelize.transaction();
 
             for (let i = 0; i < users.length; i++) {
-                const user = users[i];
-                const params = {
-                    groupId,
-                    userId: user,
-                };
+                const userId = users[i];
+                const params = { groupId, userId };
                 const foundUserInGroup = await this.getUserGroup({ params });
                 
                 if (foundUserInGroup) {
                     throw new CustomError({
                         code: statusCodes[CODES.BAD_DATA],
-                        message: `Users didn't add to group. This group has user ID ${params.userId}`,
+                        message: `Users didn't add to group. This group has user ID ${userId}`,
                         service: 'userGroup',
                         method: 'addUsersToGroup',
                     });
                 };
-                
     
                 DAL.addUserToGroup({ ...params }, transaction);
             }
@@ -83,7 +70,6 @@ class UserGroup {
                 method: 'addUsersToGroup',
             }); 
         }
-        
 
         return result;
     }

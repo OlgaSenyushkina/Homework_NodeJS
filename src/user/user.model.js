@@ -30,6 +30,6 @@ UserModelDB.init({
 }, {
     sequelize,
     paranoid: true,
+    timestamps: true,
     modelName: 'user',
-    timestamps: false
 })

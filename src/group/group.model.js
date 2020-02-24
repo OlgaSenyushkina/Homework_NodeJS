@@ -21,6 +21,7 @@ GroupModelDB.init({
     },
 }, {
     sequelize,
+    paranoid: true,
+    timestamps: true,
     modelName: 'group',
-    timestamps: false
 })

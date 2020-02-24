@@ -55,7 +55,6 @@ class User {
         const user = await this.getUserById(id);
         
         if (!user) return false;
-
         const data = { isDeleted: true };
             
         const result = DAL.updateUser( { id, data });

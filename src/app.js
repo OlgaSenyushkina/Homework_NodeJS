@@ -20,10 +20,10 @@ app
     .listen(PORT, async () => {
         console.log(`Example app listening on port ${PORT}!`);
         try {
-            await sequelize.authenticate();
+            sequelize.authenticate();
 
             console.log('[sequelize] Our database is working correctly!');
-        } catch(error) {
-                console.error('[sequelize] Unable to connect to the database:', error);
+        } catch(e) {
+                console.error('[sequelize] Unable to connect to the database:', e);
         };
     });
