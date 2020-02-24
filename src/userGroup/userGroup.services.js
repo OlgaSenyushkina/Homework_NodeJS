@@ -1,7 +1,8 @@
 import { userGroupSchema } from './userGroup.schema';
 import { DAL } from './userGroup.DAL';
 import { sequelize } from '../db';
-import { statusCodes } from '../helpers/const';
+import { statusCodes, CODES } from '../helpers/const';
+import { CustomError } from '../helpers/errorsHandler';
 
 class UserGroup {
     constructor(schema) {

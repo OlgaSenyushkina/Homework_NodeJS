@@ -1,5 +1,6 @@
 import { groupModel } from './group.services';
-import { statusCodes } from '../helpers/const';
+import { statusCodes, CODES } from '../helpers/const';
+import { CustomError } from '../helpers/errorsHandler';
 
 export const addGroup = async (req, res) => {
     const { name, permissions } = req.body;

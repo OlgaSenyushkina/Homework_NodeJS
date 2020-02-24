@@ -1,6 +1,6 @@
 import { userGroupModel } from './userGroup.services';
 import { CustomError } from '../helpers/errorsHandler';
-import { statusCodes } from '../helpers/const';
+import { statusCodes, CODES } from '../helpers/const';
 
 export const getAll = async (req, res) => {
     try {

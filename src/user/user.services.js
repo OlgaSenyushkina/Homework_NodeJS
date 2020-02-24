@@ -1,6 +1,7 @@
 import uuid from 'uuid/v4';
 import { userSchema } from './user.schema';
 import { LIMIT_USERS } from '../helpers';
+import { CustomError } from '../helpers/errorsHandler';
 import { DAL } from './user.DAL';
 
 
@@ -38,7 +39,10 @@ class User {
 
         if (foundedUser) return null;
 
-        return DAL.createUser({ ...data, isDeleted: false, id: uuid() });
+        return DAL.createUser({ 
+            ...data,
+            id: uuid(),
+        });
     }
 
     async updateUserById(id, data) {
@@ -52,14 +56,25 @@ class User {
     }
 
     async deleteUserById(id) {
-        const user = await this.getUserById(id);
+        try {
+            const user = this.getUserById(id);
         
-        if (!user) return false;
-        const data = { isDeleted: true };
-            
-        const result = DAL.updateUser( { id, data });
-
-        return !!result;
+            if (!user) return false;
+                
+            const result = await DAL.deleteUser({ id });
+    
+            return !!result;
+        } catch(error) {
+            console.log(error);
+            if (error.code) {
+                throw error;
+            }
+            throw new CustomError({
+                message: error.message,
+                service: 'users',
+                method: 'deleteUser',
+            });
+        }
     }
 }
 

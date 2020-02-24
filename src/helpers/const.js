@@ -19,7 +19,7 @@ export const BUSINESS_EXCEPTION_CODES = {
 
 export const CODES = {
     ...BUSINESS_EXCEPTION_CODES,
-    SOMETHING_WENT_WRONG: 'SOMETHING_WENT_WRONG',
+    INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
     SUCCESS: 'SUCCESS',
 };
   
@@ -27,10 +27,10 @@ export const statusCodes = {
     [CODES.SUCCESS]: 200,
     [CODES.BAD_DATA]: 400,
     [CODES.NOT_FOUND]: 404,
-    [CODES.SOMETHING_WENT_WRONG]: 500,
+    [CODES.INTERNAL_SERVER_ERROR]: 500,
 };
   
 export const DEFAULT_MESSAGE = 'Something went wrong';
-export const DEFAULT_ERROR_STATUS = statusCodes[CODES.SOMETHING_WENT_WRONG];
+export const DEFAULT_ERROR_STATUS = statusCodes[CODES.INTERNAL_SERVER_ERROR];
 export const DEFAULT_SUCCESS_STATUS = statusCodes[CODES.SUCCESS];
 export const DEFAULT_SUCCESS_RESULT = { success: true, code: CODES.SUCCESS };

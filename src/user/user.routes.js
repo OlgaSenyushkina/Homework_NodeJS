@@ -1,5 +1,6 @@
 import * as express from 'express';
 import { validator } from '../helpers';
+import { handleRouterErrors } from '../helpers/errorsHandler';
 import { userModel } from './user.services';
 import { 
     getUsers,
@@ -12,10 +13,11 @@ import {
 export const userRouter = express.Router();
 
 userRouter.route('/')
-    .get(getUsers)
-    .post(validator.body(userModel.getSchema()), addUser)
+    .get(handleRouterErrors(getUsers))
+    .post(validator.body(userModel.getSchema()), handleRouterErrors(addUser))
 
 userRouter.route('/:id')
-    .get(getUser)
-    .put(validator.body(userModel.getSchema()), updateUser)
-    .delete(deleteUser)
+    .get(handleRouterErrors(getUser))
+    .put(validator.body(userModel.getSchema()), handleRouterErrors(updateUser))
+    .delete(handleRouterErrors(deleteUser));
+    

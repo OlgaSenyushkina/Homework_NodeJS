@@ -1,10 +1,11 @@
 import { userModel } from './user.services';
-import { statusCodes } from '../helpers/const';
+import { statusCodes, CODES } from '../helpers/const';
+import { CustomError } from '../helpers/errorsHandler';
 
 export const getUsers = async (req, res) => {
     const { login, limit } = req.query;
     try {
-        const result = userModel.getUsers({ login, limit })
+        const result = await userModel.getUsers({ login, limit })
         res.json(result)
     } catch (error) {
         if (error.code) {
@@ -43,7 +44,6 @@ export const getUser = async (req, res) => {
         });
     }
 }
-    
 
 export const addUser = async (req, res) => {
     const { age, login, password } = req.body;
@@ -101,7 +101,8 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async(req, res) => {
     const { id } = req.params;
     try {
-        const result = await userModel.deleteUserById(id)
+        const result = await userModel.deleteUserById(id);
+        
         if (result) {
             res.send(`Deleted user by id ${id}!`);
         } else {
@@ -113,6 +114,7 @@ export const deleteUser = async(req, res) => {
             });
         }
     } catch (error) {
+        console.log('err> ', error);
         if (error.code) {
             throw error;
         }

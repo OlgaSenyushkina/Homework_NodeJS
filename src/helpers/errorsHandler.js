@@ -1,15 +1,24 @@
-import { statusCodes, DEFAULT_ERROR_STATUS, DEFAULT_MESSAGE } from './const';
+import { DEFAULT_ERROR_STATUS, DEFAULT_MESSAGE } from './const';
 import { log } from '../logger';
 
 export const errorsHandler = (error, req, res) => {
   log(error);
   res
-    .status(statusCodes[error.code || DEFAULT_ERROR_STATUS])
+    .status(error.code || DEFAULT_ERROR_STATUS)
     .json({
         success: false,
         message: error.message || DEFAULT_MESSAGE,
         code: error.code || DEFAULT_ERROR_STATUS
     });
+};
+
+export const handleRouterErrors = (fn) => async (req, res) => {
+
+  try {
+    await fn(req, res);
+  } catch (error) {
+    errorsHandler(error, req, res);
+  }    
 };
 
 export class CustomError {
