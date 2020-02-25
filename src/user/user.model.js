@@ -23,10 +23,6 @@ UserModelDB.init({
         type: INTEGER, 
         allowNull: false 
     },
-    isDeleted: { 
-        type: BOOLEAN, 
-        allowNull: false 
-    },
 }, {
     sequelize,
     paranoid: true,

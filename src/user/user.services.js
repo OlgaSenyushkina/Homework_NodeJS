@@ -21,17 +21,17 @@ class User {
     }
 
     getUserById(id) {
-        return DAL.getUserByParams({ id, isDeleted: false });
+        return DAL.getUserByParams({ id });
     }
 
     getUserByLogin(login) {
-        return DAL.getUserByParams({ login, isDeleted: false });
+        return DAL.getUserByParams({ login });
     }
 
     getUsers({ login, limit = LIMIT_USERS }) {
         return login ? 
-            DAL.getUsersByLogin({ login, limit, isDeleted: false })
-            : DAL.getUsers({ limit, isDeleted: false });
+            DAL.getUsersByLogin({ login, limit })
+            : DAL.getUsers({ limit });
     }
 
     async addNewUser(data) {
