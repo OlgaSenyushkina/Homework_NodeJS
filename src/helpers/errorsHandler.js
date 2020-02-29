@@ -1,25 +1,5 @@
-import { DEFAULT_ERROR_STATUS, DEFAULT_MESSAGE } from './const';
+import { DEFAULT_ERROR_STATUS, DEFAULT_MESSAGE, statusCodes, CODES } from './const';
 import { log } from '../logger';
-
-export const errorsHandler = (error, req, res) => {
-  log(error);
-  res
-    .status(error.code || DEFAULT_ERROR_STATUS)
-    .json({
-        success: false,
-        message: error.message || DEFAULT_MESSAGE,
-        code: error.code || DEFAULT_ERROR_STATUS
-    });
-};
-
-export const handleRouterErrors = (fn) => async (req, res) => {
-
-  try {
-    await fn(req, res);
-  } catch (error) {
-    errorsHandler(error, req, res);
-  }    
-};
 
 export class CustomError {
   constructor({ code = DEFAULT_ERROR_STATUS, message = DEFAULT_MESSAGE, service, method }) {
@@ -36,3 +16,42 @@ export class CustomError {
     }
   }
 }
+
+export const logErrors = (err, req, res, next) => {
+  console.error(err.stack);
+  next(err);
+}
+
+export const errorsHandler = (err, req, res, next) => {
+  const error = {
+      success: false,
+      message: err.message || DEFAULT_MESSAGE,
+      code: err.code || DEFAULT_ERROR_STATUS
+    };
+
+  log(error);
+  
+  res.status(err.code || DEFAULT_ERROR_STATUS).json(error);
+  return;
+}
+
+export const validationErrorHandler = (err, req, res, next) => {
+  if (err.error && err.error.isJoi) {
+      const message = err.error.details.reduce((acc, current) => {
+          acc[current.path[0]] = current.message;
+          
+          return acc;
+      }, {});
+      
+      log({ 
+        success: false,
+        message: JSON.stringify(message),
+        code: CODES.BAD_DATA,
+      });
+
+      res.status(statusCodes[CODES.BAD_DATA]).json(message);
+      return;
+  } else {
+      next(err);
+  }
+};

@@ -1,6 +1,5 @@
 import * as express from 'express';
-import { validator } from '../helpers';
-import { handleRouterErrors } from '../helpers/errorsHandler';
+import { validator, validationErrorHandler } from '../helpers';
 import { groupModel } from './group.services';
 import { 
     getAllGroups,
@@ -12,11 +11,12 @@ import {
 
 export const groupRouter = express.Router();
 
-groupRouter.route('/')
-    .get(handleRouterErrors(getAllGroups))
-    .post(validator.body(groupModel.getSchema()), handleRouterErrors(addGroup));
+groupRouter
+    .get('/', getAllGroups)
+    .get('/:id', getGroup)
+    .delete('/:id', deleteGroup);
 
-groupRouter.route('/:id')
-    .get(handleRouterErrors(getGroup))
-    .put(validator.body(groupModel.getSchema()), handleRouterErrors(updateGroup))
-    .delete(handleRouterErrors(deleteGroup));
+groupRouter
+    .use(validator.body(groupModel.getSchema()), validationErrorHandler)
+    .post('/', addGroup)
+    .put('/:id', updateGroup);

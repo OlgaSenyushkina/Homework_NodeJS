@@ -1,6 +1,6 @@
 import * as validation from 'express-joi-validation';
 
-export const validator = validation.createValidator({});
+export const validator = validation.createValidator({ passError: true });
 
 export const PORT = 3000;
 

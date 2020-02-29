@@ -1,7 +1,6 @@
 import uuid from 'uuid/v4';
 import { userSchema } from './user.schema';
-import { LIMIT_USERS } from '../helpers';
-import { CustomError } from '../helpers/errorsHandler';
+import { LIMIT_USERS, CustomError, statusCodes, CODES } from '../helpers';
 import { DAL } from './user.DAL';
 
 
@@ -37,7 +36,14 @@ class User {
     async addNewUser(data) {
         const foundedUser = await this.getUserByLogin(data.login);
 
-        if (foundedUser) return null;
+        if (foundedUser) {
+            throw new CustomError({ 
+                code: statusCodes[CODES.BAD_DATA],
+                message: 'User with this login already exists!',
+                service: 'users',
+                method: 'addNewUser',
+            });
+        };
 
         return DAL.createUser({ 
             ...data,
@@ -48,33 +54,35 @@ class User {
     async updateUserById(id, data) {
         const user = await this.getUserById(id);
 
-        if (!user) return null;
-            
+        if (!user) {
+            throw new CustomError({ 
+                code: statusCodes[CODES.NOT_FOUND],
+                message: 'User with this id was not found!',
+                service: 'users',
+                method: 'updateUserById',
+            });
+        };
+
         const result = await DAL.updateUser({ id, data });
 
-        return result[result.length - 1][0];
+        return result && result[result.length - 1][0];
     }
 
     async deleteUserById(id) {
-        try {
-            const user = this.getUserById(id);
-        
-            if (!user) return false;
-                
-            const result = await DAL.deleteUser({ id });
-    
-            return !!result;
-        } catch(error) {
-            console.log(error);
-            if (error.code) {
-                throw error;
-            }
-            throw new CustomError({
-                message: error.message,
+        const user = await this.getUserById(id);
+
+        if (!user) {
+            throw new CustomError({ 
+                code: statusCodes[CODES.NOT_FOUND],
+                message: 'User with this id was not found!',
                 service: 'users',
-                method: 'deleteUser',
+                method: 'updateUserById',
             });
-        }
+        };
+
+        const result = await DAL.deleteUser({ id });
+
+        return !!result;
     }
 }
 

@@ -4,7 +4,7 @@ import { sequelize } from './db';
 import { userRouter } from './user';
 import { groupRouter } from './group';
 import { userGroupRouter } from './userGroup';
-import { errorsHandler } from './helpers/errorsHandler';
+import { logErrors, errorsHandler } from './helpers/errorsHandler';
 import express from 'express';
 import bodyParser from 'body-parser';
 
@@ -16,7 +16,9 @@ app
     .use('/groups', groupRouter)
     .use('/users', userRouter)
     .use('/', homeRouter)
+    .use(logErrors)
     .use(errorsHandler)
+    
     .listen(PORT, async () => {
         console.log(`Example app listening on port ${PORT}!`);
         try {

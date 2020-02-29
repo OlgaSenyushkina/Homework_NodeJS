@@ -1,6 +1,5 @@
 import * as express from 'express';
-import { validator } from '../helpers';
-import { handleRouterErrors } from '../helpers/errorsHandler';
+import { validator, validationErrorHandler } from '../helpers';
 import { userGroupModel } from './userGroup.services';
 import { 
     getAll,
@@ -10,9 +9,10 @@ import {
 
 export const userGroupRouter = express.Router();
 
-userGroupRouter.route('/')
-    .get(handleRouterErrors(getAll))
-    .post(validator.body(userGroupModel.getSchema()), handleRouterErrors(addUsersToGroup));
-
-userGroupRouter.route('/:id')
-    .get(handleRouterErrors(getUserGroup))
+userGroupRouter
+    .get('/', getAll)
+    .get('/:id', getUserGroup);
+    
+userGroupRouter
+    .use(validator.body(userGroupModel.getSchema()), validationErrorHandler)
+    .post('/', addUsersToGroup);

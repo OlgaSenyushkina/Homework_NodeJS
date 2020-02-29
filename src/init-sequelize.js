@@ -32,19 +32,16 @@ GroupModelDB.belongsToMany(UserModelDB, {
     login: 'test1',
     password: 'test1test1',
     age: 18,
-    isDeleted: false
   }),
   userModel.addNewUser({
     login: 'test2',
     password: 'test2test2',
     age: 28,
-    isDeleted: false
   }),
   userModel.addNewUser({
     login: 'test3',
     password: 'test3test3',
     age: 38,
-    isDeleted: false
   })
 ]))
 .then(data => {

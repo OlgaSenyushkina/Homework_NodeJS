@@ -1,15 +1,14 @@
 import { groupModel } from './group.services';
-import { statusCodes, CODES } from '../helpers/const';
-import { CustomError } from '../helpers/errorsHandler';
+import { statusCodes, CODES, sendResponse, CustomError } from '../helpers';
 
-export const addGroup = async (req, res) => {
+export const addGroup = async (req, res, next) => {
     const { name, permissions } = req.body;
     
     try {
-        const group = await groupModel.createGroup({ name, permissions })
+        const result = await groupModel.createGroup({ name, permissions });
 
-        if (group) {
-            res.send(group);
+        if (result) {
+            sendResponse(res, result);
         } else {
             throw new CustomError({ 
                 code: statusCodes[CODES.NOT_FOUND],
@@ -18,41 +17,27 @@ export const addGroup = async (req, res) => {
                 method: 'addGroup',
             });
         }
-    } catch (error) {
-        if (error.code) {
-            throw error;
-        }
-        throw new CustomError({
-            message: error.message,
-            service: 'groups',
-            method: 'addGroup',
-        });
+    } catch (err) {
+        next(err);
     }
 }
 
-export const getAllGroups = async (req, res) => {
+export const getAllGroups = async (req, res, next) => {
     try {
-        const groups = groupModel.getAllGroups()
-        res.json(groups)
-    } catch (error) {
-        if (error.code) {
-            throw error;
-        }
-        throw new CustomError({
-            message: error.message,
-            service: 'groups',
-            method: 'getAllGroups',
-        });
+        const result = groupModel.getAllGroups();
+        sendResponse(res, result);
+    } catch (err) {
+        next(err);
     }
 }
 
-export const getGroup = async (req, res) => {
+export const getGroup = async (req, res, next) => {
     const { id } = req.params;
     try {
-        const group = await groupModel.getGroupById(id)
+        const result = await groupModel.getGroupById(id)
         
-        if (group) {
-            res.send(group);
+        if (result) {
+            sendResponse(res, result);
         } else {
             throw new CustomError({ 
                 code: statusCodes[CODES.NOT_FOUND],
@@ -61,26 +46,19 @@ export const getGroup = async (req, res) => {
                 method: 'getGroup',
             });
         }
-    } catch (error) {
-        if (error.code) {
-            throw error;
-        }
-        throw new CustomError({
-            message: error.message,
-            service: 'groups',
-            method: 'getGroup',
-        });
+    } catch (err) {
+        next(err);
     }
 }
 
-export const updateGroup = async (req, res) => {
+export const updateGroup = async (req, res, next) => {
     const { id } = req.params;
     const { name, permissions } = req.body;
     try {
         const result = await groupModel.updateGroupById(id, { name, permissions })
         
         if (result) {
-            res.send(result);
+            sendResponse(res, result);
         } else {
             throw new CustomError({ 
                 code: statusCodes[CODES.NOT_FOUND],
@@ -89,25 +67,18 @@ export const updateGroup = async (req, res) => {
                 method: 'updateGroup',
             });
         }
-    } catch (error) {
-        if (error.code) {
-            throw error;
-        }
-        throw new CustomError({
-            message: error.message,
-            service: 'groups',
-            method: 'updateGroup',
-        });
+    } catch (err) {
+        next(err);
     }
 }
 
-export const deleteGroup = async (req, res) => {
+export const deleteGroup = async (req, res, next) => {
     const { id } = req.params;
     try {
         const result = groupModel.removeGroupById(id)
         
         if (result) {
-            res.send(`Deleted group by id ${id}!`);
+            sendResponse(res, result || `Deleted group by id ${id}!`);
         } else {
             throw new CustomError({ 
                 code: statusCodes[CODES.NOT_FOUND],
@@ -116,14 +87,7 @@ export const deleteGroup = async (req, res) => {
                 method: 'deleteGroup',
             });
         }
-    } catch (error) {
-        if (error.code) {
-            throw error;
-        }
-        throw new CustomError({
-            message: error.message,
-            service: 'groups',
-            method: 'deleteGroup',
-        });
+    } catch (err) {
+        next(err);
     }
 }
