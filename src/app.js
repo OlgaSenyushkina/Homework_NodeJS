@@ -1,10 +1,9 @@
-import { PORT } from './helpers';
+import { PORT, errorsHandler, validationErrorHandler } from './helpers';
 import { homeRouter } from './home';
 import { sequelize } from './db';
 import { userRouter } from './user';
 import { groupRouter } from './group';
 import { userGroupRouter } from './userGroup';
-import { logErrors, errorsHandler } from './helpers/errorsHandler';
 import express from 'express';
 import bodyParser from 'body-parser';
 
@@ -16,7 +15,7 @@ app
     .use('/groups', groupRouter)
     .use('/users', userRouter)
     .use('/', homeRouter)
-    .use(logErrors)
+    .use(validationErrorHandler)
     .use(errorsHandler)
     
     .listen(PORT, async () => {

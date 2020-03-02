@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { validator, validationErrorHandler } from '../helpers';
+import { validator } from '../helpers';
 import { groupModel } from './group.services';
 import { 
     getAllGroups,
@@ -17,6 +17,6 @@ groupRouter
     .delete('/:id', deleteGroup);
 
 groupRouter
-    .use(validator.body(groupModel.getSchema()), validationErrorHandler)
+    .use(validator.body(groupModel.getSchema()))
     .post('/', addGroup)
     .put('/:id', updateGroup);

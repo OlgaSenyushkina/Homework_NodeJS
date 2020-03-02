@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { validator, validationErrorHandler } from '../helpers';
+import { validator } from '../helpers';
 import { userModel } from './user.services';
 import { 
     getUsers,
@@ -17,6 +17,6 @@ userRouter
     .delete('/:id', deleteUser);
 
 userRouter
-    .use(validator.body(userModel.getSchema()), validationErrorHandler)
+    .use(validator.body(userModel.getSchema()))
     .post('/', addUser)
     .put('/:id', updateUser);

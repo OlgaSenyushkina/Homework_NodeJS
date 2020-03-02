@@ -17,11 +17,6 @@ export class CustomError {
   }
 }
 
-export const logErrors = (err, req, res, next) => {
-  console.error(err.stack);
-  next(err);
-}
-
 export const errorsHandler = (err, req, res, next) => {
   const error = {
       success: false,
@@ -32,7 +27,6 @@ export const errorsHandler = (err, req, res, next) => {
   log(error);
   
   res.status(err.code || DEFAULT_ERROR_STATUS).json(error);
-  return;
 }
 
 export const validationErrorHandler = (err, req, res, next) => {
@@ -50,8 +44,17 @@ export const validationErrorHandler = (err, req, res, next) => {
       });
 
       res.status(statusCodes[CODES.BAD_DATA]).json(message);
-      return;
   } else {
       next(err);
   }
+};
+
+export const logUnhandledPromises = () => {
+  process.on('unhandledRejection', (reason) => {
+    log({
+      success: false,
+      message: JSON.stringify(reason),
+      code: CODES.INTERNAL_SERVER_ERROR,
+    })
+  });
 };

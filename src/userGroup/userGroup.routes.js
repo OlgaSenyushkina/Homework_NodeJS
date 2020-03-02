@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { validator, validationErrorHandler } from '../helpers';
+import { validator } from '../helpers';
 import { userGroupModel } from './userGroup.services';
 import { 
     getAll,
@@ -14,5 +14,5 @@ userGroupRouter
     .get('/:id', getUserGroup);
     
 userGroupRouter
-    .use(validator.body(userGroupModel.getSchema()), validationErrorHandler)
+    .use(validator.body(userGroupModel.getSchema()))
     .post('/', addUsersToGroup);
