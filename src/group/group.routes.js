@@ -11,11 +11,12 @@ import {
 
 export const groupRouter = express.Router();
 
-groupRouter.route('/')
-    .get(getAllGroups)
-    .post(validator.body(groupModel.getSchema()), addGroup);
+groupRouter
+    .get('/', getAllGroups)
+    .get('/:id', getGroup)
+    .delete('/:id', deleteGroup);
 
-groupRouter.route('/:id')
-    .get(getGroup)
-    .put(validator.body(groupModel.getSchema()), updateGroup)
-    .delete(deleteGroup);
+groupRouter
+    .use(validator.body(groupModel.getSchema()))
+    .post('/', addGroup)
+    .put('/:id', updateGroup);

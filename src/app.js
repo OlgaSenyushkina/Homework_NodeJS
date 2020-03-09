@@ -1,4 +1,4 @@
-import { PORT } from './helpers';
+import { PORT, errorsHandler, validationErrorHandler } from './helpers';
 import { homeRouter } from './home';
 import { sequelize } from './db';
 import { userRouter } from './user';
@@ -15,17 +15,16 @@ app
     .use('/groups', groupRouter)
     .use('/users', userRouter)
     .use('/', homeRouter)
-    .use((req, res) => {
-        res.status(404).send('404 Not Found');
-    })
-    .listen(PORT, () => {
+    .use(validationErrorHandler)
+    .use(errorsHandler)
+    
+    .listen(PORT, async () => {
         console.log(`Example app listening on port ${PORT}!`);
-        sequelize
-            .authenticate()
-            .then(() => {
-                console.log('[sequelize] Our database is working correctly!');
-            })
-            .catch(err => {
-                console.error('[sequelize] Unable to connect to the database:', err);
-            });
+        try {
+            sequelize.authenticate();
+
+            console.log('[sequelize] Our database is working correctly!');
+        } catch(e) {
+                console.error('[sequelize] Unable to connect to the database:', e);
+        };
     });

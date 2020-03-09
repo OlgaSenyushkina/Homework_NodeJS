@@ -1,77 +1,93 @@
 import { groupModel } from './group.services';
+import { statusCodes, CODES, sendResponse, CustomError } from '../helpers';
 
-export const addGroup = (req, res) => {
+export const addGroup = async (req, res, next) => {
     const { name, permissions } = req.body;
-    groupModel.createGroup({ name, permissions })
-        .then(group => {
-            if (group) {
-                res.send(group);
-            } else {
-                res.status(404).send('Group with this name already exists!');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
-        });
+    
+    try {
+        const result = await groupModel.createGroup({ name, permissions });
+
+        if (result) {
+            sendResponse(res, result);
+        } else {
+            throw new CustomError({ 
+                code: statusCodes[CODES.NOT_FOUND],
+                message: 'Group with this name already exists!',
+                service: 'groups',
+                method: 'addGroup',
+            });
+        }
+    } catch (err) {
+        next(err);
+    }
 }
 
-export const getAllGroups = (req, res) => {
-    groupModel.getAllGroups()
-        .then(groups => {
-            res.json(groups)
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
-        });
+export const getAllGroups = async (req, res, next) => {
+    try {
+        const result = groupModel.getAllGroups();
+        sendResponse(res, result);
+    } catch (err) {
+        next(err);
+    }
 }
 
-export const getGroup = (req, res) => {
+export const getGroup = async (req, res, next) => {
     const { id } = req.params;
-    groupModel.getGroupById(id)
-        .then(group => {
-            if (!group) {
-                res.status(404).send('Group was not found!');
-            } else {
-                res.send(group);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
-        });
+    try {
+        const result = await groupModel.getGroupById(id)
+        
+        if (result) {
+            sendResponse(res, result);
+        } else {
+            throw new CustomError({ 
+                code: statusCodes[CODES.NOT_FOUND],
+                message: 'Group was not found!',
+                service: 'groups',
+                method: 'getGroup',
+            });
+        }
+    } catch (err) {
+        next(err);
+    }
 }
 
-export const updateGroup = (req, res) => {
+export const updateGroup = async (req, res, next) => {
     const { id } = req.params;
     const { name, permissions } = req.body;
-    groupModel.updateGroupById(id, { name, permissions })
-        .then(result => {
-            if (result) {
-                res.send(result);
-            } else {
-                res.status(404).send(`Group by id ${id} was not found!`);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
-        });
+    try {
+        const result = await groupModel.updateGroupById(id, { name, permissions })
+        
+        if (result) {
+            sendResponse(res, result);
+        } else {
+            throw new CustomError({ 
+                code: statusCodes[CODES.NOT_FOUND],
+                message: `Group by id ${id} was not found!`,
+                service: 'groups',
+                method: 'updateGroup',
+            });
+        }
+    } catch (err) {
+        next(err);
+    }
 }
 
-export const deleteGroup = (req, res) => {
+export const deleteGroup = async (req, res, next) => {
     const { id } = req.params;
-    groupModel.removeGroupById(id)
-        .then(result => {
-            if (result) {
-                res.send(`Deleted group by id ${id}!`);
-            } else {
-                res.status(404).send(`Group by id ${id} was not found!`);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal problem!');
-        });
+    try {
+        const result = groupModel.removeGroupById(id)
+        
+        if (result) {
+            sendResponse(res, result || `Deleted group by id ${id}!`);
+        } else {
+            throw new CustomError({ 
+                code: statusCodes[CODES.NOT_FOUND],
+                message: `Group by id ${id} was not found!`,
+                service: 'groups',
+                method: 'deleteGroup',
+            });
+        }
+    } catch (err) {
+        next(err);
+    }
 }

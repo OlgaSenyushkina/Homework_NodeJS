@@ -9,9 +9,10 @@ import {
 
 export const userGroupRouter = express.Router();
 
-userGroupRouter.route('/')
-    .get(getAll)
-    .post(validator.body(userGroupModel.getSchema()), addUsersToGroup);
-
-userGroupRouter.route('/:id')
-    .get(getUserGroup)
+userGroupRouter
+    .get('/', getAll)
+    .get('/:id', getUserGroup);
+    
+userGroupRouter
+    .use(validator.body(userGroupModel.getSchema()))
+    .post('/', addUsersToGroup);

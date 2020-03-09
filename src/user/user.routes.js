@@ -7,15 +7,16 @@ import {
     addUser,
     updateUser,
     deleteUser,
-} from './user.controller';
+ } from './user.controller';
 
 export const userRouter = express.Router();
 
-userRouter.route('/')
-    .get(getUsers)
-    .post(validator.body(userModel.getSchema()), addUser);
+userRouter
+    .get('/', getUsers)
+    .get('/:id', getUser)
+    .delete('/:id', deleteUser);
 
-userRouter.route('/:id')
-    .get(getUser)
-    .put(validator.body(userModel.getSchema()), updateUser)
-    .delete(deleteUser);
+userRouter
+    .use(validator.body(userModel.getSchema()))
+    .post('/', addUser)
+    .put('/:id', updateUser);

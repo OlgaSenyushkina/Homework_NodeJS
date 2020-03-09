@@ -13,17 +13,15 @@ class UserDataAccessLayer {
         return UserModelDB.findOne({ where });
     }
 
-    getUsers({ limit, isDeleted }) {
+    getUsers({ limit }) {
         const order = [['login', 'ASC']];
-        const where = { isDeleted };
 
-        return UserModelDB.findAll({ limit, where, order });
+        return UserModelDB.findAll({ limit, order });
     }
 
-    getUsersByLogin({ login, isDeleted, limit }) {
+    getUsersByLogin({ login, limit }) {
         const order = [['login', 'ASC']];
         const where = {
-            isDeleted,
             login: { [Op.like]: `%${login}%` }
         };
 
@@ -37,6 +35,11 @@ class UserDataAccessLayer {
     updateUser({ id, data }) {
         const where = { id };
         return UserModelDB.update({ ...data }, { where, returning: true });
+    }
+
+    deleteUser({ id }) {
+        const where = { id };
+        return UserModelDB.destroy({ where });
     }
 }
 
