@@ -46,5 +46,10 @@ export const checkJwtToken = (token) => {
         });
     }
 
+    try {
+        
+    } catch (e) {
+        
+    }
     return jwt.verify(token, JWT_SECRET_KEY);
 };
