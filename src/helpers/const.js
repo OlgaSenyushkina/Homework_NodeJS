@@ -15,6 +15,7 @@ export const LIMIT_USERS = 5;
 export const BUSINESS_EXCEPTION_CODES = {
     NOT_FOUND: 'NOT_FOUND',
     BAD_DATA: 'BAD_DATA',
+    NOT_AUTHORIZED: 'NOT_AUTHORIZED',
 };
 
 export const CODES = {
@@ -26,6 +27,7 @@ export const CODES = {
 export const statusCodes = {
     [CODES.SUCCESS]: 200,
     [CODES.BAD_DATA]: 400,
+    [CODES.NOT_AUTHORIZED]: 401,
     [CODES.NOT_FOUND]: 404,
     [CODES.INTERNAL_SERVER_ERROR]: 500,
 };

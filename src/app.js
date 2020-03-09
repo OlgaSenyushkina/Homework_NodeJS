@@ -3,18 +3,23 @@ import { homeRouter } from './home';
 import { sequelize } from './db';
 import { userRouter } from './user';
 import { groupRouter } from './group';
+import { authRouter, checkIfUserAuthorized } from './auth';
 import { userGroupRouter } from './userGroup';
 import express from 'express';
 import bodyParser from 'body-parser';
+import passport from 'passport';
+
 
 const app = express();
 
 app
     .use(bodyParser.json())
-    .use('/userGroups', userGroupRouter)
-    .use('/groups', groupRouter)
-    .use('/users', userRouter)
-    .use('/', homeRouter)
+    .use(passport.initialize())
+    .use('/auth', authRouter)
+    .use('/userGroups', checkIfUserAuthorized, userGroupRouter)
+    .use('/groups', checkIfUserAuthorized, groupRouter)
+    .use('/users', checkIfUserAuthorized, userRouter)
+    .use('/', checkIfUserAuthorized, homeRouter)
     .use(validationErrorHandler)
     .use(errorsHandler)
     
