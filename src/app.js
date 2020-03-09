@@ -7,14 +7,13 @@ import { authRouter, checkIfUserAuthorized } from './auth';
 import { userGroupRouter } from './userGroup';
 import express from 'express';
 import bodyParser from 'body-parser';
-import passport from 'passport';
-
+import cors from 'cors';
 
 const app = express();
 
 app
+    .use(cors())
     .use(bodyParser.json())
-    .use(passport.initialize())
     .use('/auth', authRouter)
     .use('/userGroups', checkIfUserAuthorized, userGroupRouter)
     .use('/groups', checkIfUserAuthorized, groupRouter)

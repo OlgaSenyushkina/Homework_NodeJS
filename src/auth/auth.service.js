@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { userModel } from '../user';
 import { CustomError, statusCodes, CODES } from '../helpers';
 import { JWT_SECRET_KEY } from '../helpers/secret';
+import { TOKEN_LIFE_TIME_SECONDS } from '../helpers/const';
 
 export const login = async (username, password) => {
     if (!username || !password) {
@@ -42,14 +43,25 @@ export const checkJwtToken = (token) => {
             code: statusCodes[CODES.NOT_AUTHORIZED],
             message: 'Not authorized',
             service: 'auth',
-            method: 'checkIfUserAuthorized',
+            method: 'checkJwtToken',
         });
     }
 
     try {
+        const jwtToken = token.split('Bearer ')[1];
+        const payload = jwt.verify(jwtToken, JWT_SECRET_KEY);
+
+        if ((Date.now() - (payload.iat * 1000)) > TOKEN_LIFE_TIME_SECONDS * 1000) {
+            throw new Error("Token was expired");
+        }
         
+        return payload;
     } catch (e) {
-        
+        throw new CustomError({ 
+            code: statusCodes[CODES.FORBIDDEN],
+            message: 'Forbidden',
+            service: 'auth',
+            method: 'checkJwtToken',
+        });
     }
-    return jwt.verify(token, JWT_SECRET_KEY);
 };

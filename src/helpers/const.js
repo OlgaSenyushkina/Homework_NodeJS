@@ -11,11 +11,13 @@ export const MIN_PASSWORD = 3;
 export const MAX_AGE = 130;
 export const MIN_AGE = 4;
 export const LIMIT_USERS = 5;
+export const TOKEN_LIFE_TIME_SECONDS = 600; // 10 minutes
 
 export const BUSINESS_EXCEPTION_CODES = {
     NOT_FOUND: 'NOT_FOUND',
     BAD_DATA: 'BAD_DATA',
     NOT_AUTHORIZED: 'NOT_AUTHORIZED',
+    FORBIDDEN: 'FORBIDDEN',
 };
 
 export const CODES = {
@@ -28,6 +30,7 @@ export const statusCodes = {
     [CODES.SUCCESS]: 200,
     [CODES.BAD_DATA]: 400,
     [CODES.NOT_AUTHORIZED]: 401,
+    [CODES.FORBIDDEN]: 403,
     [CODES.NOT_FOUND]: 404,
     [CODES.INTERNAL_SERVER_ERROR]: 500,
 };

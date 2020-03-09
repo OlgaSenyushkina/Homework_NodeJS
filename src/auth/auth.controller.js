@@ -1,4 +1,4 @@
-import { login } from './auth.service'; 
+import { login, checkJwtToken } from './auth.service'; 
 import { CustomError, statusCodes, CODES, sendResponse } from '../helpers';
 
 export const checkCredentials = async (req, res, next) => {
@@ -22,14 +22,10 @@ export const checkCredentials = async (req, res, next) => {
 }
 
 export const checkIfUserAuthorized = (req, res, next) => {
-    if (!req.headers.Authorization) {
-        next(new CustomError({ 
-            code: statusCodes[CODES.NOT_AUTHORIZED],
-            message: 'Not authorized',
-            service: 'auth',
-            method: 'checkIfUserAuthorized',
-        }));
+    try {
+        checkJwtToken(req.headers.authorization);
+        next();
+    } catch (e) {
+        next(e);
     }
-    console.log(req.headers);
-    next();
 };
