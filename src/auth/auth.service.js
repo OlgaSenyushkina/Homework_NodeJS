@@ -34,7 +34,7 @@ export const login = async (username, password) => {
         });
     }
 
-    return jwt.sign({ login: username }, JWT_SECRET_KEY);
+    return jwt.sign({ login: username }, JWT_SECRET_KEY, { expiresIn: TOKEN_LIFE_TIME_SECONDS });
 };
 
 export const checkJwtToken = (token) => {
@@ -49,12 +49,8 @@ export const checkJwtToken = (token) => {
 
     try {
         const jwtToken = token.split('Bearer ')[1];
-        const payload = jwt.verify(jwtToken, JWT_SECRET_KEY);
+        const payload = jwt.verify(jwtToken, JWT_SECRET_KEY, { expiresIn: TOKEN_LIFE_TIME_SECONDS });
 
-        if ((Date.now() - (payload.iat * 1000)) > TOKEN_LIFE_TIME_SECONDS * 1000) {
-            throw new Error("Token was expired");
-        }
-        
         return payload;
     } catch (e) {
         throw new CustomError({ 
