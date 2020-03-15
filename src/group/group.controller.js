@@ -24,7 +24,7 @@ export const addGroup = async (req, res, next) => {
 
 export const getAllGroups = async (req, res, next) => {
     try {
-        const result = groupModel.getAllGroups();
+        const result = await groupModel.getAllGroups();
         sendResponse(res, result);
     } catch (err) {
         next(err);
@@ -75,7 +75,7 @@ export const updateGroup = async (req, res, next) => {
 export const deleteGroup = async (req, res, next) => {
     const { id } = req.params;
     try {
-        const result = groupModel.removeGroupById(id)
+        const result = await groupModel.removeGroupById(id);
         
         if (result) {
             sendResponse(res, result || `Deleted group by id ${id}!`);

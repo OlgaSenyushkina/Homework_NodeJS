@@ -17,6 +17,7 @@ export const getUser = async (req, res, next) => {
 
     try {
         const result = await userModel.getUserById(id);
+
         if (result) {
             sendResponse(res, result);
         } else {
