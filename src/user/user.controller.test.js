@@ -8,88 +8,23 @@ import {
 import { userModel } from './user.services';
 import { sendResponse } from '../helpers';
 
+const FAKE_ERROR = new Error({
+    message: "error",
+});
+
 jest.mock('./user.services', () => ({
     userModel: {
-        getUsers: jest.fn(({ login }) => {
-            if (login === 'error') {
-                return Promise.reject(new Error({
-                    message: "error",
-                }));
-            }
-
-            const data = [
-                { login: 'ololo' },
-                { login: 'prprpr' },
-            ];
-
-            if (login) {
-                const result = data.filter(item => item.login === login);
-
-                return Promise.resolve(result);
-            }
-
-            return Promise.resolve(data);
-        }),
-        getUserById: jest.fn((id) => {
-            if (!id || id === 'error') {
-                return Promise.reject(new Error({
-                    message: "error",
-                }));
-            }
-
-            const data = [
-                { id: 'fa51300e-2017-4693-94e7-9f25a4b125d1'},
-                { id: 'fa51300e-2017-4693-94e7-9f25a4b125d2' },
-            ];
-
-            const result = data.find(item => item.id === id);
-
-            return Promise.resolve(result);
-        }),
-        addNewUser: jest.fn(({ age, login, password }) => {
-            if (!age || !login || !password) {
-                return Promise.reject(new Error({
-                    message: "error",
-                }));
-            }
-
-            return Promise.resolve({ 
-                age,
-                login,
-                password,
-                id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
-            });
-
-        }),
-        updateUserById: jest.fn((id, { age, login, password }) => {
-            if (id === 'error') {
-                return Promise.reject(new Error({
-                    message: "error",
-                }));
-            }
-
-            return Promise.resolve({ 
-                id,
-                age,
-                login,
-                password,
-            });
-        }),
-        deleteUserById: jest.fn((id) => {
-            if (id === 'error') {
-                return Promise.reject(new Error({
-                    message: "error",
-                }));
-            }
-
-            return Promise.resolve(`Deleted user by id ${id}!`);
-        }),
+        getUsers: jest.fn(),
+        getUserById: jest.fn(),
+        addNewUser: jest.fn(),
+        updateUserById: jest.fn(),
+        deleteUserById: jest.fn(),
     },
 }));
 
-jest.mock('../helpers', () => ({
+jest.mock('../helpers', () => ({ 
     sendResponse: jest.fn(),
-}));
+ }));
 
 const next = jest.fn();
 
@@ -102,6 +37,8 @@ describe('user.controller', () => {
                 },
             };
             const res = {};
+            const mockResult = [req.query];
+            userModel.getUsers = jest.fn().mockResolvedValue(mockResult);
 
             await getUsers(req, res, next);
 
@@ -109,19 +46,21 @@ describe('user.controller', () => {
             expect(userModel.getUsers).toHaveBeenCalledWith(req.query);
             
             expect(sendResponse).toHaveBeenCalledTimes(1);
-            expect(sendResponse).toHaveBeenCalledWith(res, [{ login: 'ololo' }]);
+            expect(sendResponse).toHaveBeenCalledWith(res, mockResult);
         });
 
         it('less login', async () => {
-            userModel.getUsers.mockClear();
-            sendResponse.mockClear();
-
             const req = {
                 query: { 
                     login: null,
                 },
             };
             const res = {};
+            const mockResult = [
+                { login: 'ololo' },
+                { login: 'prprpr' },
+            ];
+            userModel.getUsers = jest.fn().mockResolvedValue(mockResult);
 
             await getUsers(req, res, next);
 
@@ -129,24 +68,19 @@ describe('user.controller', () => {
             expect(userModel.getUsers).toHaveBeenCalledWith(req.query);
             
             expect(sendResponse).toHaveBeenCalledTimes(1);
-            const users = [
-                { login: 'ololo' },
-                { login: 'prprpr' },
-            ];
 
-            expect(sendResponse).toHaveBeenCalledWith(res, users);
+            expect(sendResponse).toHaveBeenCalledWith(res, mockResult);
         });
 
         it('with error', async () => {
-            userModel.getUsers.mockClear();
-            sendResponse.mockClear();
-
             const req = { 
                 query: {
                     login: 'error',
                 },
             };
             const res = {};
+
+            userModel.getUsers = jest.fn().mockRejectedValue(FAKE_ERROR);
 
             await getUsers(req, res, next);
 
@@ -160,14 +94,14 @@ describe('user.controller', () => {
 
     describe('getUser method', () => {
         it('with correct id', async () => {
-            sendResponse.mockClear();
-
             const req = {
                 params: { 
                     id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
                 },
             };
             const res = {};
+
+            userModel.getUserById = jest.fn().mockResolvedValue(req.params);
 
             await getUser(req, res, next);
 
@@ -177,17 +111,16 @@ describe('user.controller', () => {
             expect(sendResponse).toHaveBeenCalledTimes(1);
             expect(sendResponse).toHaveBeenCalledWith(res, req.params);
         });
-        it('less id', async () => {
-            userModel.getUserById.mockClear();
-            sendResponse.mockClear();
-            next.mockClear();
 
+        it('less id', async () => {
             const req = { 
                 params: {
                     id: null
                 },
             };
             const res = {};
+
+            userModel.getUserById = jest.fn().mockRejectedValue(FAKE_ERROR);
 
             await getUser(req, res, next);
 
@@ -197,17 +130,16 @@ describe('user.controller', () => {
             expect(sendResponse).toHaveBeenCalledTimes(0);
             expect(next).toHaveBeenCalledTimes(1);
         });
-        it('with error', async () => {
-            userModel.getUserById.mockClear();
-            sendResponse.mockClear();
-            next.mockClear();
 
+        it('with error', async () => {
             const req = { 
                 params: {
                     id: 'error',
                 },
             };
             const res = {};
+
+            userModel.getUserById = jest.fn().mockRejectedValue(FAKE_ERROR);
 
             await getUser(req, res, next);
 
@@ -221,8 +153,6 @@ describe('user.controller', () => {
 
     describe('addUser method', () => {
         it('with correct data', async () => {
-            sendResponse.mockClear();
-
             const req = {
                 body: { 
                     age: 30,
@@ -231,21 +161,20 @@ describe('user.controller', () => {
                 },
             };
             const res = {};
+            const mockResult = {...req.body, id: 'fa51300e-2017-4693-94e7-9f25a4b125d1'};
+            
+            userModel.addNewUser = jest.fn().mockResolvedValue(mockResult);
 
             await addUser(req, res, next);
 
             expect(userModel.addNewUser).toHaveBeenCalledTimes(1);
             expect(userModel.addNewUser).toHaveBeenCalledWith(req.body);
 
-            const result = {...req.body, id: 'fa51300e-2017-4693-94e7-9f25a4b125d1'};
             expect(sendResponse).toHaveBeenCalledTimes(1);
-            expect(sendResponse).toHaveBeenCalledWith(res, result);
+            expect(sendResponse).toHaveBeenCalledWith(res, mockResult);
         });
-        it('with error', async () => {
-            userModel.addNewUser.mockClear();
-            sendResponse.mockClear();
-            next.mockClear();
 
+        it('with error', async () => {
             const req = {
                 body: { 
                     age: null,
@@ -254,6 +183,8 @@ describe('user.controller', () => {
                 },
             };
             const res = {};
+
+            userModel.addNewUser = jest.fn().mockRejectedValue(FAKE_ERROR);
 
             await addUser(req, res, next);
 
@@ -267,8 +198,6 @@ describe('user.controller', () => {
 
     describe('updateUser method', () => {
         it('with correct data', async () => {
-            sendResponse.mockClear();
-
             const req = {
                 params: {
                     id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
@@ -280,21 +209,20 @@ describe('user.controller', () => {
                 },
             };
             const res = {};
+            const mockResult = {...req.params, ...req.body};
+            
+            userModel.updateUserById = jest.fn().mockResolvedValue(mockResult);
 
             await updateUser(req, res, next);
 
             expect(userModel.updateUserById).toHaveBeenCalledTimes(1);
             expect(userModel.updateUserById).toHaveBeenCalledWith(req.params.id, req.body);
 
-            const result = {...req.params, ...req.body};
             expect(sendResponse).toHaveBeenCalledTimes(1);
-            expect(sendResponse).toHaveBeenCalledWith(res, result);
+            expect(sendResponse).toHaveBeenCalledWith(res, mockResult);
         });
-        it('with error', async () => {
-            userModel.updateUserById.mockClear();
-            sendResponse.mockClear();
-            next.mockClear();
 
+        it('with error', async () => {
             const req = {
                 params: {
                     id: 'error',
@@ -306,6 +234,8 @@ describe('user.controller', () => {
                 },
             };
             const res = {};
+
+            userModel.updateUserById = jest.fn().mockRejectedValue(FAKE_ERROR);
 
             await updateUser(req, res, next);
 
@@ -325,22 +255,25 @@ describe('user.controller', () => {
                 },
             };
             const res = {};
+            const mockResult = `Deleted user by id ${req.params.id}!`;
+
+            userModel.deleteUserById = jest.fn().mockResolvedValue(mockResult);
 
             await deleteUser(req, res, next);
 
             expect(userModel.deleteUserById).toHaveBeenCalledTimes(1);
             expect(userModel.deleteUserById).toHaveBeenCalledWith(req.params.id);
         });
-        it('with error', async () => {
-            userModel.deleteUserById.mockClear();
-            next.mockClear();
 
+        it('with error', async () => {
             const req = {
                 params: {
                     id: 'error',
                 },
             };
             const res = {};
+
+            userModel.deleteUserById = jest.fn().mockRejectedValue(FAKE_ERROR);
 
             await deleteUser(req, res, next);
 

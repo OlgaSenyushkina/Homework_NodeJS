@@ -8,131 +8,17 @@ import {
 import { groupModel } from './group.services';
 import { sendResponse } from '../helpers';
 
+const FAKE_ERROR = new Error({
+    message: 'error',
+});
+
 jest.mock('./group.services', () => ({
     groupModel: {
-        createGroup: jest.fn(({ name, permissions }) => {
-            const isCorrectPermissions = permissions.some(item => (
-                item === 'READ'
-                || item === 'WRITE'
-                || item === 'DELETE'
-                || item === 'SHARE'
-                || item === 'UPLOAD_FILES' 
-            ));
-            if (!isCorrectPermissions || name === 'error') {
-                return Promise.reject(new Error({
-                    message: 'error',
-                }));
-            }
-
-            return Promise.resolve({ 
-                name,
-                permissions,
-                id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
-            });
-        }),
-        getAllGroups: jest.fn(() => {
-            const groups = [
-                { 
-                    id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
-                    name: 'ololo',
-                    permissions: ['DELETE', 'WRITE'],
-                },
-                { 
-                    id: 'fa51300e-2017-4693-94e7-9f25a4b125d2',
-                    name: 'prprpr',
-                    permissions: ['READ'],
-                }
-            ];
-
-            return Promise.resolve(groups);
-        }),
-        getGroupById: jest.fn((id) => {
-            if (!id || id === 'error') {
-                return Promise.reject(new Error({
-                    message: 'error',
-                }));
-            }
-
-            const groups = [
-                { 
-                    id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
-                    name: 'ololo',
-                    permissions: ['DELETE', 'WRITE'],
-                },
-                { 
-                    id: 'fa51300e-2017-4693-94e7-9f25a4b125d2',
-                    name: 'prprpr',
-                    permissions: ['READ'],
-                }
-            ];
-
-            const result = groups.find(item => item.id === id);
-
-            if (!result) {
-                return Promise.reject(new Error({
-                    message: 'Group was not found!',
-                }));
-            }
-
-            return Promise.resolve(result);
-        }),
-        updateGroupById: jest.fn((id, { name, permissions }) => {
-            const groups = [
-                { 
-                    id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
-                    name: 'ololo',
-                    permissions: ['DELETE', 'WRITE'],
-                },
-                { 
-                    id: 'fa51300e-2017-4693-94e7-9f25a4b125d2',
-                    name: 'prprpr',
-                    permissions: ['READ'],
-                }
-            ];
-
-            const result = groups.find(item => item.id === id);
-
-            const isCorrectPermissions = permissions.some(item => (
-                item === 'READ'
-                || item === 'WRITE'
-                || item === 'DELETE'
-                || item === 'SHARE'
-                || item === 'UPLOAD_FILES' 
-            ));
-
-
-            if (!result || !isCorrectPermissions) {
-                return Promise.reject(new Error({
-                    message: 'error',
-                }));
-            }
-
-            return Promise.resolve({ id, name, permissions });
-        }),
-        removeGroupById: jest.fn((id) => {
-            const groups = [
-                { 
-                    id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
-                    name: 'ololo',
-                    permissions: ['DELETE', 'WRITE'],
-                },
-                { 
-                    id: 'fa51300e-2017-4693-94e7-9f25a4b125d2',
-                    name: 'prprpr',
-                    permissions: ['READ'],
-                }
-            ];
-
-            const result = groups.find(item => item.id === id);
-
-            if (!result) {
-                return Promise.reject(new Error({
-                    message: 'error',
-                }));
-            }
-
-            return Promise.resolve(`Deleted group by id ${id}!`);
-        }),
+        createGroup: jest.fn(),
+        getAllGroups: jest.fn(),
+        getGroupById: jest.fn(),
+        updateGroupById: jest.fn(),
+        removeGroupById: jest.fn(),
     },
 }));
 
@@ -153,18 +39,19 @@ describe('group.controller', () => {
             };
             const res = {};
 
+            const mockResult = {...req.body, id: 'fa51300e-2017-4693-94e7-9f25a4b125d1'};
+            
+            groupModel.createGroup = jest.fn().mockResolvedValue(mockResult);
+
             await addGroup(req, res, next);
 
             expect(groupModel.createGroup).toHaveBeenCalledTimes(1);
             expect(groupModel.createGroup).toHaveBeenCalledWith(req.body);
-            
             expect(sendResponse).toHaveBeenCalledTimes(1);
-            expect(sendResponse).toHaveBeenCalledWith(res, {...req.body, id: 'fa51300e-2017-4693-94e7-9f25a4b125d1'});
+            expect(sendResponse).toHaveBeenCalledWith(res, mockResult);
         });
-        it('less permissions', async () => {
-            groupModel.createGroup.mockClear();
-            sendResponse.mockClear();
 
+        it('less permissions', async () => {
             const req = {
                 body: { 
                     name: 'ololo',
@@ -173,19 +60,17 @@ describe('group.controller', () => {
             };
             const res = {};
 
+            groupModel.createGroup = jest.fn().mockRejectedValue(FAKE_ERROR);
+
             await addGroup(req, res, next);
 
             expect(groupModel.createGroup).toHaveBeenCalledTimes(1);
             expect(groupModel.createGroup).toHaveBeenCalledWith(req.body);
-            
             expect(sendResponse).toHaveBeenCalledTimes(0);
             expect(next).toHaveBeenCalledTimes(1);
         });
-        it('with error', async () => {
-            groupModel.createGroup.mockClear();
-            sendResponse.mockClear();
-            next.mockClear();
 
+        it('with error', async () => {
             const req = {
                 body: { 
                     name: 'error',
@@ -194,11 +79,12 @@ describe('group.controller', () => {
             };
             const res = {};
 
+            groupModel.createGroup = jest.fn().mockRejectedValue(FAKE_ERROR);
+
             await addGroup(req, res, next);
 
             expect(groupModel.createGroup).toHaveBeenCalledTimes(1);
             expect(groupModel.createGroup).toHaveBeenCalledWith(req.body);
-            
             expect(sendResponse).toHaveBeenCalledTimes(0);
             expect(next).toHaveBeenCalledTimes(1);
         });
@@ -206,15 +92,8 @@ describe('group.controller', () => {
 
     describe('getAllGroups method', () => {
         it('with correct result', async () => {
-            sendResponse.mockClear();
-            groupModel.getAllGroups.mockClear();
             const res = {};
-
-            await getAllGroups({}, res, next);
-
-            expect(groupModel.getAllGroups).toHaveBeenCalledTimes(1);
-            
-            const result = [
+            const mockResult = [
                 { 
                     id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
                     name: 'ololo',
@@ -226,39 +105,42 @@ describe('group.controller', () => {
                     permissions: ['READ'],
                 }
             ];
+
+            groupModel.getAllGroups = jest.fn().mockResolvedValue(mockResult);
+
+            await getAllGroups({}, res, next);
+
+            expect(groupModel.getAllGroups).toHaveBeenCalledTimes(1);
             expect(sendResponse).toHaveBeenCalledTimes(1);
-            expect(sendResponse).toHaveBeenCalledWith(res, result);
+            expect(sendResponse).toHaveBeenCalledWith(res, mockResult);
         });
     });
+
     describe('getGroup method', () => {
         it('with correct id', async () => {
-            sendResponse.mockClear();
-
             const req = {
                 params: {
                     id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
                 },
             };
             const res = {};
+            const mockResult = { 
+                id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
+                name: 'ololo',
+                permissions: ['DELETE', 'WRITE'],
+            };
+
+            groupModel.getGroupById = jest.fn().mockResolvedValue(mockResult);
 
             await getGroup(req, res, next);
 
             expect(groupModel.getGroupById).toHaveBeenCalledTimes(1);
             expect(groupModel.getGroupById).toHaveBeenCalledWith(req.params.id);
-            
-            const result = { 
-                id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
-                name: 'ololo',
-                permissions: ['DELETE', 'WRITE'],
-            };
             expect(sendResponse).toHaveBeenCalledTimes(1);
-            expect(sendResponse).toHaveBeenCalledWith(res, result);
+            expect(sendResponse).toHaveBeenCalledWith(res, mockResult);
         });
-        it('with error', async () => {
-            groupModel.getGroupById.mockClear();
-            sendResponse.mockClear();
-            next.mockClear();
 
+        it('with error', async () => {
             const req = {
                 params: {
                     id: 'fa51300e-2017-4693-94e7-9f25a4b125d3',
@@ -266,18 +148,19 @@ describe('group.controller', () => {
             };
             const res = {};
 
+            groupModel.getGroupById = jest.fn().mockRejectedValue(FAKE_ERROR);
+
             await getGroup(req, res, next);
 
             expect(groupModel.getGroupById).toHaveBeenCalledTimes(1);
             expect(groupModel.getGroupById).toHaveBeenCalledWith(req.params.id);
-            
             expect(sendResponse).toHaveBeenCalledTimes(0);
             expect(next).toHaveBeenCalledTimes(1);
         });
     });
+
     describe('updateGroup method', () => {
         it('with correct id', async () => {
-            sendResponse.mockClear();
             const req = {
                 params: { 
                     id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
@@ -288,24 +171,22 @@ describe('group.controller', () => {
                 },
             };
             const res = {};
+            const mockResult = { 
+                id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
+                name: 'ololo',
+                permissions: ['READ'],
+            };
+            groupModel.updateGroupById = jest.fn().mockResolvedValue(mockResult);
 
             await updateGroup(req, res, next);
 
             expect(groupModel.updateGroupById).toHaveBeenCalledTimes(1);
             expect(groupModel.updateGroupById).toHaveBeenCalledWith(req.params.id, req.body);
-            
-            const result = { 
-                id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
-                name: 'ololo',
-                permissions: ['READ'],
-            };
             expect(sendResponse).toHaveBeenCalledTimes(1);
-            expect(sendResponse).toHaveBeenCalledWith(res, result);
+            expect(sendResponse).toHaveBeenCalledWith(res, mockResult);
         });
+
         it('with error', async () => {
-            groupModel.updateGroupById.mockClear();
-            sendResponse.mockClear();
-            next.mockClear();
             const req = {
                 params: { 
                     id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
@@ -317,38 +198,38 @@ describe('group.controller', () => {
             };
             const res = {};
 
+            groupModel.updateGroupById = jest.fn().mockRejectedValue(FAKE_ERROR);
+
             await updateGroup(req, res, next);
 
             expect(groupModel.updateGroupById).toHaveBeenCalledTimes(1);
             expect(groupModel.updateGroupById).toHaveBeenCalledWith(req.params.id, req.body);
-            
             expect(sendResponse).toHaveBeenCalledTimes(0);
             expect(next).toHaveBeenCalledTimes(1);
         });
     });
+
     describe('deleteGroup method', () => {
         it('with correct id', async () => {
-            sendResponse.mockClear();
             const req = {
                 params: { 
                     id: 'fa51300e-2017-4693-94e7-9f25a4b125d1',
                 },
             };
             const res = {};
+            const mockResult = `Deleted group by id ${req.params.id}!`;
+
+            groupModel.removeGroupById = jest.fn().mockResolvedValue(mockResult);
 
             await deleteGroup(req, res, next);
 
             expect(groupModel.removeGroupById).toHaveBeenCalledTimes(1);
             expect(groupModel.removeGroupById).toHaveBeenCalledWith(req.params.id);
-            
-            const result = `Deleted group by id ${req.params.id}!`;
             expect(sendResponse).toHaveBeenCalledTimes(1);
-            expect(sendResponse).toHaveBeenCalledWith(res, result);
+            expect(sendResponse).toHaveBeenCalledWith(res, mockResult);
         });
+
         it('with error', async () => {
-            groupModel.removeGroupById.mockClear();
-            sendResponse.mockClear();
-            next.mockClear();
             const req = {
                 params: { 
                     id: 'fa51300e-2017-4693-94e7-9f25a4b125d3',
@@ -356,11 +237,12 @@ describe('group.controller', () => {
             };
             const res = {};
 
+            groupModel.removeGroupById = jest.fn().mockRejectedValue(FAKE_ERROR);
+
             await deleteGroup(req, res, next);
 
             expect(groupModel.removeGroupById).toHaveBeenCalledTimes(1);
             expect(groupModel.removeGroupById).toHaveBeenCalledWith(req.params.id);
-            
             expect(sendResponse).toHaveBeenCalledTimes(0);
             expect(next).toHaveBeenCalledTimes(1);
         });
